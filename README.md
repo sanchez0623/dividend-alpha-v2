@@ -2,6 +2,20 @@
 
 > A 股高股息组合 · 前瞻验证系统（Forward-only）。规格真值见 `dividend-alpha-v3-handoff/docs/00_INDEX.md`。
 
+![ci](https://github.com/sanchez0623/dividend-alpha-v2/actions/workflows/ci.yml/badge.svg)
+![python](https://img.shields.io/badge/python-3.11-blue)
+![node](https://img.shields.io/badge/node-20-green)
+![fastapi](https://img.shields.io/badge/FastAPI-REST%20%2B%20WS-009688)
+![react](https://img.shields.io/badge/React%2018-TS%20%2B%20Vite-61dafb)
+![license](https://img.shields.io/badge/license-private-lightgrey)
+
+**dividend-alpha** 是一套 A 股高股息组合的**前瞻验证（forward-only）**系统：后端 FastAPI 负责行情接入、因子/信号、账本与盘后闭环，前端 React 8 页做可视化；内置两条并行策略——**S\\* 高股息组合**与 **DC 分红捕获**。
+
+- 📘 项目简介 / 架构 / 硬约束：见下方 [结构](#结构) 与 [硬约束](#硬约束已落实)
+- 🚀 本地一键跑通：见 [快速开始](#快速开始)
+- ☁️ 阿里云 ECS 部署（含**无域名 HTTPS**）：见 [`docs/DEPLOY_ALIYUN.md`](docs/DEPLOY_ALIYUN.md) · [`docs/ALIYUN_DEPLOY_PLAYBOOK.md`](docs/ALIYUN_DEPLOY_PLAYBOOK.md)
+- 📈 双策略说明：见 [双策略](#双策略v31)
+
 ## 快速开始
 
 ```bash

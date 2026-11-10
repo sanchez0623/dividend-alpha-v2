@@ -1,35 +1,74 @@
 name: ci
-on: [push, pull_request]
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   backend:
+    name: 后端 · 测试 + 盘后闭环
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
-        with: { python-version: "3.11" }
-      - run: pip install -r requirements.txt pytest
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: 安装依赖
+        run: pip install -r requirements.txt pytest
+
       - name: 冻结参数真值与归档就位
         run: |
           mkdir -p config
           cp dividend-alpha-v3-handoff/config/*.yaml config/
-      - name: 禁用逻辑检查（rotation.enabled: true）
+
+      - name: "禁用逻辑检查（rotation.enabled: true）"
         run: "! grep -rn 'rotation.enabled: true' src config || true"
+
       - name: 只读区未修改（legacy / data.json）
         run: git diff --exit-code dividend-alpha-v3-handoff/docs/legacy dividend-alpha-v3-handoff/web/data.json
+
       - name: make ledger-init（首日 7 条净值）
         run: make ledger-init
-      - name: pytest
+
+      - name: pytest（53 项验收测试）
         run: make test
+
       - name: worker-once（盘后闭环，daily_nav=7）
         run: make worker-once
 
   frontend:
+    name: 前端 · 类型检查 + 构建
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
-        with: { node-version: "20" }
-      - working-directory: web
-        run: npm install
-      - working-directory: web
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: 安装依赖
+        run: npm ci
+
+      - name: 构建（tsc -b && vite build）
         run: npm run build
+
+      - name: 上传构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-dist
+          path: web/dist
+          retention-days: 7
