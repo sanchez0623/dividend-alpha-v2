@@ -1,0 +1,35 @@
+providers:
+  market:
+    primary: tushare
+    fallback: [ths_fuyao, akshare, baostock]
+    tushare: {token: "${TUSHARE_TOKEN}", rate_limit_per_min: 500}
+    ths_fuyao:
+      api_key: "${THS_API_KEY}"
+      base_url: "https://fuyao.aicubes.cn"
+      capabilities:
+        prices: "/api/a-share/prices"
+        market_dumps: "/dump/market-dumps"
+        corporate_actions: "/api/a-share/corporate-actions"
+        a_share_index: "/api/a-share-index"
+        financials: "/api/a-share/financials/indicators"
+      # 官方总览硬约束：同时检查 HTTP 状态码与响应信封 code
+      check_http_status: true
+      check_envelope_code: true
+      rate_limit_codes: [4001]
+      http_rate_limit_status: 429
+      max_concurrency: 2
+      min_interval_sec: 0.5
+      backoff: {base_sec: 2, factor: 2, max_sec: 60, jitter: true}
+      retry_immediately: false       # 禁止立即连续重试
+      thscode_nullable: true
+    akshare: {timeout: 30, retry: 3, max_concurrency: 4}
+    baostock: {serial: true}        # 明确不支持并发
+  fundamental: {primary: tushare, fallback: [ths_fuyao, akshare]}
+  intraday: {primary: akshare, interval: 60m, retry: 3}
+  calendar: {primary: akshare, func: tool_trade_date_hist_sina}
+  index_benchmark: {primary: a_share_index, fallback: [sina]}
+storage:
+  postgres_dsn: "${POSTGRES_DSN}"
+  redis_url: "${REDIS_URL}"
+  parquet_dir: "./data/parquet"
+  archive_json: "./web/data.json"   # 只读

@@ -1,0 +1,39 @@
+# 轻量部署（低配 ECS，如 2核2G）：SQLite + api + web，不含 TimescaleDB/Redis。
+# 理由：requirements.txt 未含 psycopg/redis 驱动；且 2GiB 跑不动 TimescaleDB。
+# 用法：docker compose -f infra/docker-compose.lite.yml up -d --build
+services:
+  web:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile.web
+      args:
+        VITE_API_PREFIX: ${DA_API_PREFIX:-/da/v1}
+    ports: ["80:80", "443:443"]
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx.https.conf.template:/etc/nginx/https.template:ro   # HTTPS 站点模板（放在 conf.d 外，避免重复加载）
+      - ./https.conf:/etc/nginx/conf.d/https.conf                 # 证书就绪后由脚本填充
+      - ./certs:/var/www/certbot                # ACME webroot 挑战目录（certbot 可写）
+      - ./letsencrypt:/etc/letsencrypt:ro       # Let's Encrypt 证书
+    depends_on: [api]
+    restart: unless-stopped
+
+  api:
+    build: { context: .., dockerfile: infra/Dockerfile.api }
+    expose: ["8000"]
+    env_file: ../.env
+    environment:
+      POSTGRES_DSN: sqlite:////app/data/dividend_alpha.db
+      DA_CONFIG_DIR: /app/config
+      DA_ARCHIVE_JSON: /app/dividend-alpha-v3-handoff/web/data.json
+      DA_API_PREFIX: ${DA_API_PREFIX:-/da/v1}
+      DA_CORS_ORIGINS: ${DA_CORS_ORIGINS:-*}
+    volumes:
+      - ../config:/app/config:ro
+      - ../dividend-alpha-v3-handoff/web/data.json:/app/dividend-alpha-v3-handoff/web/data.json:ro
+      - appdata:/app/data          # ★ SQLite 数据持久化
+    mem_limit: 1g                  # ★ 2GiB 机器上给 api 上限，防 OOM 拖垮整机
+    restart: unless-stopped
+
+volumes:
+  appdata:

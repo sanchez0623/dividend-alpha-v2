@@ -1,0 +1,177 @@
+{
+  "generated_at": "2026-11-09 16:41:17+0800",
+  "checks": [
+    {
+      "section": "A",
+      "name": "10 只标的数据齐备",
+      "ok": true,
+      "detail": "bars={'sh600028': 2877, 'sh600219': 2771, 'sh601288': 2877, 'sh601988': 2877, 'sh600329': 2872, 'sz000651': 2720, 'sh600585': 2877, 'sh601216': 2780, 'sh601088': 2803, 'sz000568': 2859}"
+    },
+    {
+      "section": "A",
+      "name": "除权事件齐备（每只 >10 条）",
+      "ok": true,
+      "detail": "events={'sh600028': 24, 'sh600219': 18, 'sh601288': 15, 'sh601988': 14, 'sh600329': 14, 'sz000651': 17, 'sh600585': 14, 'sh601216': 12, 'sh601088': 14, 'sz000568': 14}"
+    },
+    {
+      "section": "A",
+      "name": "价格均为正",
+      "ok": true,
+      "detail": "非法=0"
+    },
+    {
+      "section": "A",
+      "name": "事件按日期去重有序",
+      "ok": true,
+      "detail": "异常=0"
+    },
+    {
+      "section": "A",
+      "name": "输入数据 SHA256 与 summary 一致",
+      "ok": true,
+      "detail": "bars/events/calendar"
+    },
+    {
+      "section": "B",
+      "name": "主变体有网格成交",
+      "ok": true,
+      "detail": "trades=794"
+    },
+    {
+      "section": "B",
+      "name": "成交日/成交价=当日 close/金额/整手",
+      "ok": true,
+      "detail": "异常=0"
+    },
+    {
+      "section": "B",
+      "name": "买入/卖出费用逐笔复算",
+      "ok": true,
+      "detail": "maxΔ=0.000000"
+    },
+    {
+      "section": "B",
+      "name": "卖出红利税按 FIFO 实际持有天数复算",
+      "ok": true,
+      "detail": "maxΔ=0.000000"
+    },
+    {
+      "section": "B",
+      "name": "T+1（卖出批次买入日<卖出日）",
+      "ok": true,
+      "detail": "异常=0"
+    },
+    {
+      "section": "B",
+      "name": "成交笔数=metrics",
+      "ok": true,
+      "detail": "794"
+    },
+    {
+      "section": "C",
+      "name": "逐只期末权益重放一致",
+      "ok": true,
+      "detail": "10/10 一致"
+    },
+    {
+      "section": "C",
+      "name": "组合期末权益重放一致",
+      "ok": true,
+      "detail": "重放=6923868.21 引擎=6923868.21"
+    },
+    {
+      "section": "C",
+      "name": "网格费用合计重放一致",
+      "ok": true,
+      "detail": "重放=9473.78"
+    },
+    {
+      "section": "C",
+      "name": "红利税合计重放一致",
+      "ok": true,
+      "detail": "重放=1400.69"
+    },
+    {
+      "section": "C",
+      "name": "nav 末日=Σ持仓权益",
+      "ok": true,
+      "detail": "6923868.21 vs 6923868.21"
+    },
+    {
+      "section": "C",
+      "name": "期末=初始+价格损益+分红−费用−税",
+      "ok": true,
+      "detail": "LHS=3923868.21 RHS=3923868.21"
+    },
+    {
+      "section": "C",
+      "name": "期末财富(净值)−递延税=重放净值",
+      "ok": true,
+      "detail": "重放净值=6923868.21"
+    },
+    {
+      "section": "D",
+      "name": "重跑 nav 哈希=summary",
+      "ok": true,
+      "detail": "44cfcdb3065db3f3"
+    },
+    {
+      "section": "D",
+      "name": "重跑 trades 哈希=summary",
+      "ok": true,
+      "detail": "9449fc84b8f3a9e0"
+    },
+    {
+      "section": "D",
+      "name": "连续两次重跑哈希一致",
+      "ok": true,
+      "detail": "hash match"
+    },
+    {
+      "section": "E",
+      "name": "excess(vs core70) == grid_net",
+      "ok": true,
+      "detail": "异常=[]"
+    },
+    {
+      "section": "E",
+      "name": "excess(vs hold100) == grid_net + 现金拖累",
+      "ok": true,
+      "detail": "异常=[]"
+    },
+    {
+      "section": "F",
+      "name": "hold100 无网格成交",
+      "ok": true,
+      "detail": "trades=0"
+    },
+    {
+      "section": "F",
+      "name": "hold100 sh600028 权益重放一致",
+      "ok": true,
+      "detail": "583219.95 vs 583219.95"
+    },
+    {
+      "section": "F",
+      "name": "core70_cash30 无网格成交",
+      "ok": true,
+      "detail": "trades=0"
+    },
+    {
+      "section": "F",
+      "name": "core70_cash30 sh600028 权益重放一致",
+      "ok": true,
+      "detail": "498299.14 vs 498299.14"
+    },
+    {
+      "section": "G",
+      "name": "2021 子样本期末权益复算一致",
+      "ok": true,
+      "detail": "4912776.56 vs 4912776.56"
+    }
+  ],
+  "n_checks": 28,
+  "n_pass": 28,
+  "n_fail": 0,
+  "all_ok": true
+}

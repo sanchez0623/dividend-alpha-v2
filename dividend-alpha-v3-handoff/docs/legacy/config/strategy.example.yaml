@@ -1,0 +1,433 @@
+# ⚠️ 唯一权威参数表见 docs/IMPLEMENTATION.md §2；本文件为实现模板
+# 所有与 IMPLEMENTATION.md 冲突处以 IMPLEMENTATION.md 为准
+# ============================================================
+# dividend-alpha 策略配置（示例）
+# 复制为 strategy.yaml 后按需修改
+# 所有费率请以交易所/券商最新规定为准
+# ============================================================
+
+meta:
+  version: v1
+  # ============================================================
+  # ★ 实证基线（2015-01 ~ 2026-10，300万本金，含全部成本）
+  #   B2 高股息持有        年化 7.93%  夏普 0.31  回撤 -36.8%
+  #   S* 最终策略          年化 9.71%  夏普 0.39  回撤 -36.6%
+  #     增量 +1.78%/年（做T 26 笔，胜率 61.5%，单笔 +6.81%）
+  #   样本外(2022-2026)    9.97%  >  训练期(2015-2021) 9.83%  ✅
+  # ★ 锁定参数（2026-10-31）：N=10 / 行业L1≤1 / 银行子类≤2 / 做T=20日跌12%+RSI<25 持30日
+  #   期末资产 812.9 万 vs 纯持有 670.6 万
+  # ============================================================
+  universe: A_SHARE_ALL       # 全A（含退市历史，防幸存者偏差）
+  benchmark_indexes: [000922.SH, H30269.CSI, 000300.SH]
+
+# ---------------- 数据过滤（排雷） ----------------
+universe_filter:
+  exclude_st: true
+  exclude_delist_warning: true
+  min_list_years: 3
+  min_market_cap: 3.0e10      # ★★ 总市值 >= 300亿（用户约束：连续稳定分红的大市值股）
+  # min_adv_20d 已移除：实测它不是风险过滤器（被剔除股收益更高、尾部风险更低），
+  #   流动性改由 backtest.max_participation_rate 动态限流
+  exclude_bse: true           # 排除北交所
+
+# ---------------- 核心仓选股 ----------------
+core_selection:
+  # ① 股息筛选
+  min_div_years: 5            # 连续分红年数 ★★ 实证：轮动生效的开关，不可降级
+  min_div_yield_ttm: 2.5      # % 绝对底线（仅作兜底，实测池内中位 6.58%）
+  payout_ratio_range: [25.0, 80.0]
+  # ② 质量
+  min_roe_ttm: 8.0
+  max_profit_decline_yoy: -15.0     # 近3年扣非净利同比下限
+  min_ocf_to_profit: 0.6
+  debt_ratio_tolerance_pct: 15.0    # 相对行业中位数容忍度
+  # ③ 估值
+  max_pe_pctile_5y: 40.0
+  max_pb_pctile_5y: 30.0
+  # ④ 打分权重
+  score_weights:
+    div: 0.40
+    quality: 0.35
+    value: 0.25
+  # ④-b ★★ 轮动核心：股息率历史分位（价格相对自身的高低位）
+  div_yield_pctile:
+    windows: [3, 5, 10]
+    entry_min_pctile_5y: 60.0        # 分位>60% = 股息率处自身高位 = 价低 → 买入
+    exit_below_pctile_5y: 30.0       # 分位<30% = 股息率处自身低位 = 价涨 → 换出
+    conflict_policy: conservative    # conservative | vote | weighted
+    ex_dividend_adjust: forward_adjusted_price  # ★ 除权跳变修正
+    signal_freeze_days_around_ex: 3
+
+  # ④-c ★ 股息率变动归因（防价值陷阱 A/B/C/D）
+  div_yield_attribution:
+    lookback_months: 12
+    reject_if:
+      profit_down_and_price_down_faster: true   # C 类：崩塌陷阱
+      payout_ratio_gt: 90.0                    # D 类：周期顶陷阱
+      dividend_amount_declined_20pct: true
+    prefer: [numerator_driven, denominator_driven]
+
+  # ⑤ 价值陷阱惩罚
+  value_trap_penalty:
+    yield_gt: 8.0
+    pe_pctile_gt: 60.0
+    factor: 0.6
+  yield_spike_penalty:
+    ratio: 2.0
+    factor: 0.8
+
+# ---------------- 组合与风控 ----------------
+portfolio:
+  # ★ 注意：轮动已关闭，核心仓回归"买入持有 + 分红再投"
+  core_ratio: 0.90             # ★ 实测：30% 闲置现金拖累 1.70%/年
+  tactical_ratio: 0.10         # 机动仓（做T弹药，仅在触发时占用）
+  tactical_split:
+    t_trade: 0.15
+    swing: 0.10
+    cash_buffer: 0.05
+  target_positions: 10         # ★★ 由 20 下调。实测 N 越小收益越高（向量化 2015-2026）：
+                               #   N=5 15.11% | N=8 11.68% | N=10 10.39% | N=12 9.13%
+                               #   N=15 8.93% | N=20 8.59% | N=25 8.78%
+                               #   且 N=10 四个子区间(15-17/18-20/21-23/24-26)均为正 → 非偶然
+  min_positions: 8
+  max_positions: 15
+  weighting: equal             # ★ 等权优于非等权：股息率平方加权 N=10 10.39%→10.23%，N=20 8.59%→6.41%
+
+  # ★★ 行业约束（用户要求）
+  industry_constraint:
+    enabled: true
+    level: L1                  # 申万/东财一级行业（如"银行""食品饮料"）
+    max_per_industry: 1        # ★ 同行业最多 1 只
+    # 银行细分（BOARD_NAME_LEVEL 天然区分，无需自建规则）：
+    #   银行-银行Ⅱ-国有大型银行Ⅲ(6) / 股份制银行Ⅲ(9) / 城商行Ⅲ(17) / 农商行Ⅲ(10)
+    bank_subtype:
+      treat_as_distinct: true  # ★ 国有/股份/城商/农商 互不算同一类
+      max_per_subtype: 2       # ★ 每个银行子类最多 2 只
+    # ⚠️ 实测：N=20 时行业约束有害(8.59%→7.44%)；N=10 时有益(10.39%→11.42%)
+    #    → 约束强度必须随 N 调整，池子小的时候别逼自己选差票
+  weighting: equal             # equal | score_weighted | risk_parity
+
+risk:
+  max_single_weight: 0.08
+  max_industry_l1_weight: 0.25   # ★ 申万一级行业上限
+  max_industry_l2_weight: 0.15
+  max_top3_industry: 0.55
+  max_turnover_per_rebalance: 0.30
+  # ★ 换出频率实测（N=20 向量化）：换得越勤越差
+  #   ① 股息率<1.5%/分红中断/满5年  8.59%  年换手 42%   ★最优
+  #   ② 跌出池内股息率前50%        6.99%  年换手 93%
+  #   ③ 跌出前30% 或 满3年         8.17%  年换手 74%
+  #   → 高频换出 = 剪掉赢家，与"轮动失效"同源
+  rebalance_weight_drift: 0.03   # 偏离超过 3pct 才调整
+  rebalance_frequency: monthly   # ★ 实证：月频(14.02%) > 季频(9.72%) > 半年频(10.42%)
+  drawdown_halt: 0.18            # 回撤 18% 熔断，停止增强层
+  single_trade_max_pct_nav: 0.03
+  # 卖出硬规则
+  sell_rules:
+    dividend_interrupted: true
+    div_yield_below: 2.5
+    payout_ratio_above: 100.0
+    profit_decline_2y: -20.0
+    # ★ 轮动换出：分位触发 + 保护条款
+    # ★★ 超涨卖出（用户要求：超涨才卖，不是一涨就卖）
+    overheat_exit:
+      definition:
+        primary: unrealized_gain    # ★ 相对成本浮盈，而非"涨了一点"
+        gain_threshold: 0.50        # ★ 浮盈 >50% 才判定超涨
+        # 实测（N=10+行业约束+分红再投，2015-2026）：
+        #   ① 股息率<1.5% 一次性清仓        7.70%  样本外 5.61%
+        #   ② 浮盈>50%   一次性清仓        9.78%  样本外 12.61%  ★最优
+        #   ③ 浮盈>50%   每次减1/3共3次     5.65%  样本外 6.61%
+        #   ④ 浮盈>30%   每次减1/3共3次     5.45%  样本外 5.23%
+        #   ⑤ 浮盈>30%   每次减1/4共4次     4.84%  样本外 3.20%
+        #   ⑧ 浮盈>50%   每次减1/2共2次     6.08%  样本外 5.47%
+        # ★ 结论：分批挪仓实测【劣于】一次性清仓 —— 与直觉相反，已回写
+        alternate_definitions:      # 备选，实测均弱于浮盈口径
+          - {name: div_yield, cond: "div_yield_ttm < 0.025", ann: 8.00%, oos: 7.33%}
+          - {name: pctile,    cond: "div_yield_pctile_5y < 20", ann: 7.70%, oos: 5.61%}
+      action: sell_all              # ★ 一次性清仓（分批实测更差）
+      gradated:
+        enabled: false              # ★ 已完整测试（第六轮），样本外未通过
+        # 正确实现：earmark 定向资金池 + 只买非持仓低分位新股 + 滞留3月释放
+        # 实测（定向比例 = 减仓款中强制买新股的比例）：
+        #   A0 一次性清仓          全期 9.78%  样本外 12.61%  回撤 -42.0%  ★胜出
+        #   定向  0%（分批但摊回）  7.47%        6.01%        -42.0%
+        #   定向 30%              7.38%        4.54%        -39.1%
+        #   定向 50%              8.71%        3.79%        -42.3%
+        #   定向 70%              1.75%        1.10%        -38.0%
+        #   定向100%（分位≥70）     8.02%        4.55%        -25.1%  ★回撤最优
+        # 加严门槛无效：浮盈>100%+分位≥70 → 样本外 -2.63%
+        # ❌ 全部定向变体：样本内 10-13%，样本外仅 1-5% → 过拟合特征
+        # ✅ 唯一真实收益：回撤 -42% → -25%，代价是样本外少赚 8 个点
+        note: "定向挪仓本质是'轮动变体'，与已证伪的 B7 同源；若核心诉求是控回撤可选定向100%" 
+      hold_overrides:               # 满足任一则不（全）卖
+        # ★ 实证结论：trend_guard 有害！加后年化 14.02%->10.74%，回撤 -24.5%->-33.3%，默认关闭
+        # - {name: trend_guard, cond: "close>ma60 AND ma60_slope_60d>0", action: hold_half}
+        - {name: dividend_growth, cond: "dividend_amount_yoy > 10%",                          action: hold_half}
+        - {name: tax_guard,       cond: "holding_days < 335",                                 action: defer}
+
+# ---------------- 信号引擎 ----------------
+signal:
+  # ★★ 增强层重新定义：不再是「3-7日技术做T」，而是「超跌反弹事件驱动」
+  # 实证（600只大市值股，177万日收益样本，质量池内）：
+  #   20日跌>20% 持20日: 毛超额 +4.03%  净超额 +3.73%  t=17.8  胜率 58.4%  年机会 ~7.9 次
+  #   20日跌>25% 持10日: 毛超额 +3.63%  净超额 +3.33%  胜率 59.4%
+  #   10日跌>15% 持10日: 毛超额 +1.83%  净超额 +1.53%  胜率 55.0%
+  # 质量过滤使信号更强（全样本超额2.95% -> 质量池3.84%），故必须与核心选股池共用
+  overlay:
+    enabled: true
+    kind: oversold_rsi_combo      # ★ 最终锁定：超跌 + RSI 组合（2026-10-31 用户确认）
+    # ★★ 扫描池（第八轮实证修订）
+    # 原为 IN_POSITION_ONLY（只在 10 只持仓内扫），实测 11.8 年仅触发 7 笔，形同虚设
+    # ★ 关键澄清：T+1 只禁止"当日买当日卖"，【不禁止】买入新股票持有 30 天
+    #   → 30 日持仓场景扫全池完全合规，无额外交易限制
+    scope: POOL_WIDE                  # IN_POSITION_ONLY | POOL_WIDE
+    # 实测（N=10+行业约束+分红取30%）：
+    #   仅持仓内        7 笔(0.6/年)  年化  9.83%  样本外 12.64%
+    #   持仓+曾持仓     23 笔         年化 10.52%
+    #   ★全池 10×3%    172 笔(14.6/年) 年化 11.09%  样本外 17.32%
+    #   ★全池 12×3%    180 笔         年化 11.16%  样本外 17.50%
+    #   全池 15×2%     214 笔         年化 10.36%（机动仓>30% 会稀释核心仓）
+
+    # ★★ 信号族改为「超跌 + RSI」组合（网格扫描 9×8，2015-2026 大市值池）
+    #   【A】纯 RSI（持30日）：RSI<25 净2.34% t=12.69 胜率59.7% 样本3446
+    #                        RSI<30 净1.69% t=16.86 胜率57.8% 样本9482
+    #   【B】超跌 × RSI 净超额矩阵（持30日）—— 行=20日跌幅，列=RSI阈值
+    #         RSI<15  RSI<20  RSI<25  RSI<30  RSI<35  RSI<40
+    #   跌10%   -0.55%  1.60%  2.90%  2.41%  1.82%  1.45%
+    #   跌12%   -0.31%  1.76%  3.09%  2.59%  2.04%  1.72%
+    #   跌15%    1.51%  2.56%  3.23%  2.86%  2.24%  1.92%
+    #   跌18%    3.81%  3.04%  3.24%  2.99%  2.46%  1.99%
+    #   跌20%    4.88%  2.77%  2.88%  2.86%  2.48%  1.88%
+    #   跌25%    5.20%  3.62%  2.95%  2.55%  1.90%  1.20%
+    #   ★ 采用 跌12% + RSI<25：净3.09% t=11.28 胜率60.1% 样本2026（兼顾显著性与样本量）
+    #   ★ 备用 跌10% + RSI<25：净2.90% t=12.15 样本2498（N 小时机会更多）
+    #   ★ 峰值 跌25% + RSI<15：净5.20% t=5.24  样本仅72（样本太少，不采用）
+    trigger:
+      kind: combo                   # ★ oversold AND rsi
+      lookback_days: 20
+      drop_threshold: 0.12          # ★ 20日跌幅 ≥12%
+      rsi_period: 14                # Wilder 平滑
+      rsi_threshold: 25             # ★ RSI(14) < 25
+    holding_days: 30
+    rank_by_strength: true          # 强度 = 跌幅 + (rsi_thr - rsi)/rsi_thr × 0.5
+    max_concurrent: 10              # ★ 由 3 上调（第八轮）
+    position_per_trade: 0.03        # ★ 由 0.10 下调；机动仓总暴露 ≈30%，超过会稀释核心仓
+    # ❌ 核心仓强制换仓【灾难性】：每月换2只 → 年化 -6.07%；仅持仓每月换2只 → 0.99%
+    #    → 核心仓绝不做定期轮动，机动性只体现在 overlay 层
+    # ❌ 条件换仓（"高位+低股息率才换"）【已证伪，第九轮】：
+    #    分位<20 换出 带做T 9.76% / 关做T 9.75%  vs 基准关做T 9.78% → 净贡献 -0.03% ≈ 0
+    #    且做T贡献从 +1.36% 掉到 -0.02% —— 不只是没用，是破坏了做T
+    # ⚠️ 换入排序必须按【股息率绝对值】，按【分位】排序会跌到 3.21%（分位高≠股息率高）
+    # ❌ OR模式(分位<20 或 浮盈>50%) 12.06% 是孤峰：15组邻域仅5/15超基准，标准差1.58%
+    # ❌ 低频检查(半年频+分位<30) 16.12% 是噪声：5月频=8.01% vs 6月频=16.12%，差8个点
+    # ❌ MACD 金叉【完全无效】：净超额 -0.36%，t=-0.66（趋势指标用于超跌反弹是错配）
+    # ❌ BOLL 跌破下轨：净超额 0.62% t=11.20，有效但弱于 RSI
+    position_per_trade: 0.03         # ★ 机动仓总暴露 ≈30%
+    max_concurrent: 12               # ★ 全池扫描（IMPLEMENTATION.md §2 / REPORT8）
+    require_in_core_universe: true
+    min_expected_net_pct: 1.0
+    cooldown_same_symbol_days: 30
+    # 实测（2015-2026, 300亿, 300万）：26 笔，胜率 61.5%，单笔均值 +6.81%
+    #   → 贡献 +1.78%/年。年均仅 2.2 笔，但单笔质量远高于"扫全市场"版本
+
+    etf_substitution:
+      enabled: false                # 实测负贡献
+
+  capital_allocation:
+    core_ratio: 0.90
+    tactical_reserve: 0.10          # 常备；暴跌日机动仓可临时扩至 ~30%（由现金与减持核心仓自然调剂）
+  # ★ 与 signal.overlay.max_concurrent=12 × position_per_trade=0.03 对应
+
+  # ★★★ 分红/闲置现金再投入 —— 本轮最大修正
+  cash_management:
+    enabled: true
+    instrument: reverse_repo
+    assumed_rate: 0.02
+    apply_to: idle_cash
+  dividend_reinvest:
+    enabled: true
+    trigger: on_dividend
+    ratio: 1.00                     # ★ 年内 100% 全额再投
+    weight: current_market_value
+    lot_size: 100
+    min_cash_ratio: 0.02
+  dividend_withdraw:                # ★★ 用户最终决策（REPORT11）
+    enabled: true
+    mode: annual                    # 每年一次，不是每笔
+    timing: "last_trading_day_of_December"
+    base: ytd_cash_dividend_gross   # 当年累计【税前】现金分红（核心仓+机动仓）
+    ratio: 0.30                     # 取 30%
+    shortfall_policy: cash_only     # cash_only(默认,兑现83.8%) | sell_to_cover(100%,年化-0.04%)
+    reset_counter_after: true
+    skip_incomplete_year: true
+    idempotency_key: "(year, account_id)"
+    # 实测（2015-2026，300万）：
+    #   不取现            11.15%  样本外 17.47%  期末 986.8万
+    #   每笔即时取30%      10.10%  样本外 15.12%  期末 882.8万  ← 做T失效
+    #   ★年底取30%        10.61%  样本外 15.61%  期末 931.9万  夏普 0.39
+    #   年底取+卖股补足    10.57%  兑现100%        期末 927.9万
+    #   年内预留           9.32%   ← 失败，不要预留
+    # ★ 取现不降低风险调整后收益（夏普 0.39 = 不取现），只牺牲绝对复利 -0.54%/年
+
+  legacy_t_trade:
+    enabled: false
+
+  # ★ 成本闸
+  min_expected_net_pct: 0.8
+  cost_multiple: 3.0
+  min_risk_reward: 1.5
+  max_signals_per_day: 5
+  min_t_trade_interval_days: 3
+  min_horizon_days: 3
+  max_horizon_days: 7
+  swing_max_days: 21
+
+  generators:
+    - name: oversold_rebound
+      module: da_signal.overlay.oversold_rebound
+      kind: OVERLAY
+      enabled: true
+      weight: 1.0
+      params:
+        lookback_days: 20
+        drop_threshold: 0.12        # ★ 锁定：20日跌幅 ≥12%
+        rsi_period: 14
+        rsi_threshold: 25           # ★ 锁定：RSI(14) < 25
+        holding_days: 30
+
+  # 做T通用前置过滤
+  filters:
+    max_adx: 25
+    min_atr_pct: 0.8
+    min_adv_20d: 50_000_000
+    avoid_earnings_days: 3
+    require_not_limit_up_down: true
+    require_not_suspended: true
+
+# ---------------- 成本模型 ★ ----------------
+cost:
+  commission_rate: 0.00025       # 万2.5，双边
+  commission_min: 5.0            # 最低 5 元
+  stamp_tax_rate: 0.0005         # 卖出单边 0.05%（ETF 为 0）
+  transfer_fee_rate: 0.00001     # 过户费，双边
+  slippage_bps: 10               # 单边 10 bp
+  etf_stamp_tax_exempt: true
+
+# ---------------- ★ 红利税优化（轮动模式新增）----------------
+dividend_tax_optimization:
+  enabled: true
+  capture_window:
+    no_sell_days_before_ex: 20      # ★ 距除权日 20 天内禁止卖出
+    require_hold_through_ex: true   # 否则白白损失整年分红
+  full_year_bonus:
+    enabled: false                  # ★ 实测无效：年红利税仅0.35%，推迟卖出反使年化-0.5%
+    # min_holding_days: 335
+    # defer_if_pctile_above: 20.0
+  fifo_sell_order: longest_first    # 优先出最早批次（已满1年，税率0）
+  dividend_tax:                  # 按持股天数，FIFO 匹配
+    le_1m: 0.20
+    le_1y: 0.10
+    gt_1y: 0.00
+
+# ---------------- 回测 ----------------
+backtest:
+  start: "2015-01-01"          # ★ 用户要求（2014 毕业接触投资）
+  end: "2026-10-31"
+  init_cash: 3_000_000         # ★ 用户本金
+  engine: event_driven           # event_driven | vectorized
+  price_adjust: pre              # 前复权
+  lot_size: 100
+  max_participation_rate: 0.01   # ★ 单笔 ≤ 日均成交额 1%（超过则分笔）
+  fill_price: next_bar_open      # next_bar_open | current_close
+  walk_forward:
+    enabled: true
+    train_months: 12
+    test_months: 3
+
+# ---------------- ★★ 轮动引擎（策略核心）----------------
+rotation:
+  enabled: false               # ★★ 实证结论：股息率分位轮动在大市值段【全面失效】
+  # 2015-2026/300亿: B7 7.06% vs B2 9.05% → -1.99%/年
+  # 2015-2026/500亿: B7 8.00% vs B2 8.06% → -0.06%/年
+  # 2018-2026/300亿: B7 3.38% vs B2 7.30% → -3.92%/年
+  # 8 种池子定义中仅 1 种（2013起+无市值限制+流动性过滤）为正 → 不是稳定 alpha
+  # 原因：大市值股价格由基本面趋势主导，轮动=系统性卖掉赢家买入输家
+  # ★ 不要重新开启，除非换用完全不同的信号（行业中性化/盈利修正）
+  trigger_mode: threshold          # threshold（推荐）| calendar
+  turnover_budget:
+    max_annual_turnover: 2.0       # 年换手率上限 200%（成本 ~0.6%）★
+    max_positions_changed_per_event: 0.30
+    min_holding_days: 180          # ★ 实证中位持有 12 个月，90 天偏短
+    cooldown_days_same_symbol: 180 # 卖出后 180 天不得买回，防 whipsaw
+  market_timer:
+    enabled: false                  # ★ 实测：减仓使年化 13.11%->11.11%，回撤无改善，不做宏观择时
+  underfill_policy:                # ★ 无股可换怎么办（实测触发率仅 1.2%，中位数153只）
+    min_qualified_candidates: 10
+    # ★ 实证：连续分红>=5年是轮动生效的开关（无此过滤轮动跑输持有 0.77%）
+    action_sequence: [hold_current, add_etf, hold_cash]
+    etf_fallback: ["510880.SH", "515180.SH", "512890.SH"]
+    max_cash_ratio: 0.30
+  overlay_mode: etf_only           # etf_only（推荐）| current_holdings | disabled
+
+# ---------------- 基准对比 ----------------
+benchmarks:
+  B1_concentrated:
+    enabled: true
+    top_n: 10
+    weighting: equal
+    overlay: false
+  B2_diversified:
+    enabled: true
+    overlay: false                # ★ 最关键对照组
+  B3_div_index:
+    enabled: true
+    codes: ["000922.SH", "H30269.CSI"]
+  B4_hs300:
+    enabled: true
+    codes: ["000300.SH"]
+  B5_zero_cost:
+    enabled: true                 # S0 逻辑但成本设为 0
+  B6_random_placebo:
+    enabled: true                 # ★ 做T已跑完实测，必须做安慰剂检验确认非运气
+    n_simulations: 200
+    match_trade_count: true
+    seed: 42
+  # ★★ 轮动专用基准
+  B7_yield_pctile_rotation:
+    enabled: true                 # ★ 最关键：轮动 vs 不轮动
+    overlay: false
+    entry_pctile: 60
+    exit_pctile: 30
+  B8_random_rotation:
+    enabled: true                 # ★ 同等频率换到随机标的 → 检验轮动选股是否真 alpha
+    n_simulations: 200
+    match_rotation_count: true
+    match_timing: true
+    seed: 42
+  B9_rotation_cash_drag:
+    enabled: true                 # 无股可换时的空仓拖累量化
+    track_cash_ratio: true
+
+# ---------------- 显著性检验 ----------------
+significance:
+  min_trade_samples: 50          # ★ 持仓内做T年均仅 2.2 笔，100 笔门槛不现实
+  alpha: 0.05
+  method: paired_ttest_vs_B6     # ★ 主判据：做T vs 同等频次随机交易
+  min_backtest_years: 10
+  walk_forward:
+    train: "2015-01 ~ 2021-12"
+    test:  "2022-01 ~ 2026-10"
+    pass_criterion: "样本外排名进入前 50% 且年化 > 基准" 
+
+# ---------------- 监控与通知 ----------------
+monitor:
+  intraday_scan_interval_min: 15
+  intraday_fetch_interval_min: 30
+  signal_push_channels: [wecom]
+  daily_report_time: "17:00"
+  alert_on:
+    - new_signal_net_gt: 1.5
+    - drawdown_gt: 0.15
+    - data_pipeline_failure
+    - position_weight_breach

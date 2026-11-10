@@ -1,0 +1,25 @@
+—— A. 数据 ——
+  [PASS] A · 10 只标的数据齐备  (bars={'sh600028': 2877, 'sh600219': 2771, 'sh601288': 2877, 'sh601988': 2877, 'sh600329': 2872, 'sz000651': 2720, 'sh600585': 2877, 'sh601216': 2780, 'sh601088': 2803, 'sz000568': 2859})
+  [PASS] A · 除权事件齐备（每只 >10 条）  (events={'sh600028': 24, 'sh600219': 18, 'sh601288': 15, 'sh601988': 14, 'sh600329': 14, 'sz000651': 17, 'sh600585': 14, 'sh601216': 12, 'sh601088': 14, 'sz000568': 14})
+  [PASS] A · 价格均为正  (非法=0)
+  [PASS] A · 事件按日期去重有序  (异常=0)
+  [PASS] A · 输入数据 SHA256 与 summary 一致  (bars/events/calendar)
+—— B. 成交逐笔（主变体 trailing）——
+  [PASS] B · 主变体有网格成交  (trades=794)
+  [PASS] B · 成交日/成交价=当日 close/金额/整手  (异常=0)
+  [PASS] B · 买入/卖出费用逐笔复算  (maxΔ=0.000000)
+  [PASS] B · 卖出红利税按 FIFO 实际持有天数复算  (maxΔ=0.000000)
+  [PASS] B · T+1（卖出批次买入日<卖出日）  (异常=0)
+  [PASS] B · 成交笔数=metrics  (794)
+—— C. 独立重放（初始建仓+成交+事件+费用+税）——
+Traceback (most recent call last):
+  File "D:\Sanchez\AI\GithubProjects\dividend-alpha-v2\research\grid\verify.py", line 355, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "D:\Sanchez\AI\GithubProjects\dividend-alpha-v2\research\grid\verify.py", line 260, in main
+    rep = replay_symbol(s, data, init[s], tr[tr["symbol"] == s], cfg, E.START, E.END)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Sanchez\AI\GithubProjects\dividend-alpha-v2\research\grid\verify.py", line 147, in replay_symbol
+    assert abs(tax - float(r.tax)) < TOL, f"{sym} {d} 卖出税不符 {tax} vs {r.tax}"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: sh600219 2019-11-25 卖出税不符 16.0 vs 0.0

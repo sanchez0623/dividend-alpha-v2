@@ -1,0 +1,53 @@
+services:
+  # ★ 唯一入口：nginx(80) = 前端静态 + /da/v1 反代 api。无域名时用 http://<ECS公网IP>/ 访问。
+  web:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile.web
+      args: { VITE_API_PREFIX: ${DA_API_PREFIX:-/da/v1} }
+    ports: ["80:80"]
+    depends_on: [api]
+
+  api:
+    build: { context: .., dockerfile: infra/Dockerfile.api }
+    expose: ["8000"]            # 仅内网，不直接暴露公网
+    env_file: ../.env
+    environment:
+      POSTGRES_DSN: postgresql+psycopg://da:da@db:5432/dividend_alpha
+      REDIS_URL: redis://redis:6379/0
+      DA_CONFIG_DIR: /app/config
+      DA_ARCHIVE_JSON: /app/dividend-alpha-v3-handoff/web/data.json
+      DA_API_PREFIX: ${DA_API_PREFIX:-/da/v1}
+      DA_CORS_ORIGINS: ${DA_CORS_ORIGINS:-*}
+    volumes:
+      - ../config:/app/config:ro
+      - ../dividend-alpha-v3-handoff/web/data.json:/app/dividend-alpha-v3-handoff/web/data.json:ro
+    depends_on: [db, redis]
+
+  worker:
+    build: { context: .., dockerfile: infra/Dockerfile.worker }
+    env_file: ../.env
+    environment:
+      POSTGRES_DSN: postgresql+psycopg://da:da@db:5432/dividend_alpha
+      REDIS_URL: redis://redis:6379/0
+      DA_CONFIG_DIR: /app/config
+      DA_API_PREFIX: ${DA_API_PREFIX:-/da/v1}
+    volumes:
+      - ../config:/app/config:ro
+    depends_on: [db, redis]
+
+  db:
+    image: timescale/timescaledb-ha:pg16
+    environment:
+      POSTGRES_USER: da
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-da}
+      POSTGRES_DB: dividend_alpha
+    volumes: [pgdata:/var/lib/postgresql/data]
+    # ★ 不暴露 5432 到公网；如需本地连接用 SSH 隧道
+    expose: ["5432"]
+
+  redis:
+    image: redis:7-alpine
+
+volumes:
+  pgdata:

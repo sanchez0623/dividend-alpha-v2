@@ -1,0 +1,44 @@
+[16:40:03] 加载 10 只标的日线/除权事件（research/dividend_capture/data，同源）…
+[16:40:04]   sh600028 中国石化     bars=2877 events=24 first=2015-01-05 last=2026-11-06
+[16:40:04]   sh600219 南山铝业     bars=2771 events=18 first=2015-01-05 last=2026-11-06
+[16:40:04]   sh601288 农业银行     bars=2877 events=15 first=2015-01-05 last=2026-11-06
+[16:40:04]   sh601988 中国银行     bars=2877 events=14 first=2015-01-05 last=2026-11-06
+[16:40:04]   sh600329 达仁堂      bars=2872 events=14 first=2015-01-05 last=2026-11-06
+[16:40:04]   sz000651 格力电器     bars=2720 events=17 first=2015-01-05 last=2026-11-06
+[16:40:04]   sh600585 海螺水泥     bars=2877 events=14 first=2015-01-05 last=2026-11-06
+[16:40:04]   sh601216 君正集团     bars=2780 events=12 first=2015-01-07 last=2026-11-06
+[16:40:04]   sh601088 中国神华     bars=2803 events=14 first=2015-01-05 last=2026-11-06
+[16:40:04]   sz000568 泸州老窖     bars=2859 events=14 first=2015-01-05 last=2026-11-06
+[16:40:04] 全样本 2016-01-04 ~ 2026-11-06 跑全部变体…
+[16:40:05]   hold100                          CAGR   10.02% total   181.50% MDD -28.19% trades    0 win  0.0%
+[16:40:05]   core70_cash30                    CAGR    7.85% total   126.95% MDD -22.94% trades    0 win  0.0%
+[16:40:05]   core70_grid30_sym_trailing       CAGR    8.02% total   130.80% MDD -23.13% trades  794 win 61.6%
+[16:40:05]   core70_grid30_sym_fixed          CAGR    8.28% total   136.95% MDD -23.69% trades  631 win 96.1%
+[16:40:05]   core70_grid30_sym_recenter       CAGR    8.40% total   139.80% MDD -23.97% trades 4420 win 60.2%
+[16:40:05]   core70_grid30_dip                CAGR    7.89% total   127.82% MDD -22.85% trades  420 win 69.0%
+[16:40:05]   core70_grid30_step1.5            CAGR    8.07% total   131.82% MDD -23.14% trades 1140 win 63.1%
+[16:40:05]   core70_grid30_step2.5            CAGR    8.06% total   131.72% MDD -23.23% trades  772 win 65.0%
+[16:40:05]   core80_grid20_sym                CAGR    8.72% total   147.42% MDD -24.96% trades  794 win 61.6%
+[16:40:05]   core50_grid50_sym                CAGR    6.48% total    97.47% MDD -19.77% trades  794 win 61.6%
+[16:40:05] 2021-01-04 起子样本跑全部变体…
+[16:40:05]   hold100                          CAGR   11.06% total    84.49% MDD -16.63% trades    0 win  0.0%
+[16:40:05]   core70_cash30                    CAGR    8.29% total    59.22% MDD -13.25% trades    0 win  0.0%
+[16:40:05]   core70_grid30_sym_trailing       CAGR    8.82% total    63.76% MDD -13.69% trades  739 win 66.6%
+[16:40:06]   core70_grid30_sym_fixed          CAGR    8.58% total    61.67% MDD -13.48% trades  346 win 95.1%
+[16:40:06]   core70_grid30_sym_recenter       CAGR    9.15% total    66.74% MDD -14.92% trades 2071 win 59.7%
+[16:40:06]   core70_grid30_dip                CAGR    8.54% total    61.32% MDD -13.70% trades  754 win 56.7%
+[16:40:06]   core70_grid30_step1.5            CAGR    8.94% total    64.82% MDD -13.78% trades  954 win 69.4%
+[16:40:06]   core70_grid30_step2.5            CAGR    8.86% total    64.10% MDD -13.59% trades  720 win 64.7%
+[16:40:06]   core80_grid20_sym                CAGR    9.58% total    70.53% MDD -14.60% trades  692 win 68.5%
+[16:40:06]   core50_grid50_sym                CAGR    7.16% total    49.70% MDD -11.86% trades  739 win 66.6%
+[16:40:06] —— 关键结果（全样本）——
+[16:40:06]   hold100                          CAGR   10.02% wealth    8,444,986 MDD -28.19% trades    0 excess_vs_core70            0 excess_vs_hold100            0
+[16:40:06]   core70_cash30                    CAGR    7.85% wealth    6,808,409 MDD -22.94% trades    0 excess_vs_core70            0 excess_vs_hold100            0
+[16:40:06]   core70_grid30_sym_trailing       CAGR    8.02% wealth    6,923,260 MDD -23.13% trades  794 excess_vs_core70      114,852 excess_vs_hold100   -1,521,725
+[16:40:06]   core70_grid30_sym_fixed          CAGR    8.28% wealth    7,108,635 MDD -23.69% trades  631 excess_vs_core70      300,226 excess_vs_hold100   -1,336,351
+[16:40:06]   core70_grid30_dip                CAGR    7.89% wealth    6,834,682 MDD -22.85% trades  420 excess_vs_core70       26,273 excess_vs_hold100   -1,610,304
+[16:40:06] —— 关键结果（2021 起）——
+[16:40:06]   hold100                          CAGR   11.06% wealth    5,534,644 MDD -16.63% excess_vs_core70            0
+[16:40:06]   core70_cash30                    CAGR    8.29% wealth    4,776,469 MDD -13.25% excess_vs_core70            0
+[16:40:06]   core70_grid30_sym_trailing       CAGR    8.82% wealth    4,912,073 MDD -13.69% excess_vs_core70      135,603
+[16:40:06] 产出：D:\Sanchez\AI\GithubProjects\dividend-alpha-v2\research\grid\results

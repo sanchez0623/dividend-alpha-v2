@@ -1,0 +1,220 @@
+{
+ "asof": "2026-11-05",
+ "scanned": 584,
+ "buckets": {
+  "成功": 549,
+  "业务错误 code=3002": 35
+ },
+ "failures": [
+  {
+   "symbol": "sh600029",
+   "type": "biz_error",
+   "code": 3002,
+   "detail": "[ths_fuyao] biz error code=3002: No adjustment events for thscode=600029.SH"
+  },
+  {
+   "symbol": "sh600726",
+   "type": "biz_error",
+   "code": 3002,
+   "detail": "[ths_fuyao] biz error code=3002: No adjustment events for thscode=600726.SH"
+  },
+  {
+   "symbol": "sh600871",
+   "type": "biz_error",
+   "code": 3002,
+   "detail": "[ths_fuyao] biz error code=3002: No adjustment events for thscode=600871.SH"
+  },
+  {
+   "symbol": "sh601091",
+   "type": "biz_error",
+   "code": 3002,
+   "detail": "[ths_fuyao] biz error code=3002: No adjustment events for thscode=601091.SH"
+  },
+  {
+   "symbol": "sh603268",
+   "type": "biz_error",
+   "code": 3002,
+   "detail": "[ths_fuyao] biz error code=3002: No adjustment events for thscode=603268.SH"
+  },
+  {
+   "symbol": "sh603459",
+   "type": "biz_error",
+   "code": 3002,
+   "detail": "[ths_fuyao] biz error code=3002: No adjustment events for thscode=603459.SH"
+  },
+  {
+   "symbol": "sh688047",
+   "type": "biz_error",
+   "code": 3002,
+   "detail": "[ths_fuyao] biz error code=3002: No adjustment events for thscode=688047.SH"
+  },
+  {
+   "symbol": "sh688180",
+   "type": "biz_error",
+   "code": 3002,
+   "detail": "[ths_fuyao] biz error code=3002: No adjustment events for thscode=688180.SH"
+  },
+  {
+   "symbol": "sh688192",
+   "type": "biz_error",
+   "code": 3002,
+   "detail": "[ths_fuyao] biz error code=3002: No adjustment events for thscode=688192.SH"
+  },
+  {
+   "symbol": "sh688220",
+   "type": "biz_error",
+   "code": 3002,
+   "detail": "[ths_fuyao] biz error code=3002: No adjustment events for thscode=688220.SH"
+  },
+  {
+   "symbol": "sh688234",
+   "type": "biz_error",
+   "code": 3002,
+   "detail": "[ths_fuyao] biz error code=3002: No adjustment events for thscode=688234.SH"
+  },
+  {
+   "symbol": "sh688235",
+   "type": "biz_error",
+   "code": 3002,
+   "detail": "[ths_fuyao] biz error code=3002: No adjustment events for thscode=688235.SH"
+  },
+  {
+   "symbol": "sh688322",
+   "type": "biz_error",
+   "code": 3002,
+   "detail": "[ths_fuyao] biz error code=3002: No adjustment events for thscode=688322.SH"
+  },
+  {
+   "symbol": "sh688331",
+   "type": "biz_error",
+   "code": 3002,
+   "detail": "[ths_fuyao] biz error code=3002: No adjustment events for thscode=688331.SH"
+  },
+  {
+   "symbol": "sh688387",
+   "type": "biz_error",
+   "code": 3002,
+   "detail": "[ths_fuyao] biz error code=3002: No adjustment events for thscode=688387.SH"
+  },
+  {
+   "symbol": "sh688428",
+   "type": "biz_error",
+   "code": 3002,
+   "detail": "[ths_fuyao] biz error code=3002: No adjustment events for thscode=688428.SH"
+  },
+  {
+   "symbol": "sh688469",
+   "type": "biz_error",
+   "code": 3002,
+   "detail": "[ths_fuyao] biz error code=3002: No adjustment events for thscode=688469.SH"
+  },
+  {
+   "symbol": "sh688506",
+   "type": "biz_error",
+   "code": 3002,
+   "detail": "[ths_fuyao] biz error code=3002: No adjustment events for thscode=688506.SH"
+  },
+  {
+   "symbol": "sh688521",
+   "type": "biz_error",
+   "code": 3002,
+   "detail": "[ths_fuyao] biz error code=3002: No adjustment events for thscode=688521.SH"
+  },
+  {
+   "symbol": "sh688702",
+   "type": "biz_error",
+   "code": 3002,
+   "detail": "[ths_fuyao] biz error code=3002: No adjustment events for thscode=688702.SH"
+  },
+  {
+   "symbol": "sh688781",
+   "type": "biz_error",
+   "code": 3002,
+   "detail": "[ths_fuyao] biz error code=3002: No adjustment events for thscode=688781.SH"
+  },
+  {
+   "symbol": "sh688783",
+   "type": "biz_error",
+   "code": 3002,
+   "detail": "[ths_fuyao] biz error code=3002: No adjustment events for thscode=688783.SH"
+  },
+  {
+   "symbol": "sh688795",
+   "type": "biz_error",
+   "code": 3002,
+   "detail": "[ths_fuyao] biz error code=3002: No adjustment events for thscode=688795.SH"
+  },
+  {
+   "symbol": "sh688796",
+   "type": "biz_error",
+   "code": 3002,
+   "detail": "[ths_fuyao] biz error code=3002: No adjustment events for thscode=688796.SH"
+  },
+  {
+   "symbol": "sh688801",
+   "type": "biz_error",
+   "code": 3002,
+   "detail": "[ths_fuyao] biz error code=3002: No adjustment events for thscode=688801.SH"
+  },
+  {
+   "symbol": "sh688802",
+   "type": "biz_error",
+   "code": 3002,
+   "detail": "[ths_fuyao] biz error code=3002: No adjustment events for thscode=688802.SH"
+  },
+  {
+   "symbol": "sh688820",
+   "type": "biz_error",
+   "code": 3002,
+   "detail": "[ths_fuyao] biz error code=3002: No adjustment events for thscode=688820.SH"
+  },
+  {
+   "symbol": "sh688825",
+   "type": "biz_error",
+   "code": 3002,
+   "detail": "[ths_fuyao] biz error code=3002: No adjustment events for thscode=688825.SH"
+  },
+  {
+   "symbol": "sh688836",
+   "type": "biz_error",
+   "code": 3002,
+   "detail": "[ths_fuyao] biz error code=3002: No adjustment events for thscode=688836.SH"
+  },
+  {
+   "symbol": "sh688981",
+   "type": "biz_error",
+   "code": 3002,
+   "detail": "[ths_fuyao] biz error code=3002: No adjustment events for thscode=688981.SH"
+  },
+  {
+   "symbol": "sz001246",
+   "type": "biz_error",
+   "code": 3002,
+   "detail": "[ths_fuyao] biz error code=3002: No adjustment events for thscode=001246.SZ"
+  },
+  {
+   "symbol": "sz001248",
+   "type": "biz_error",
+   "code": 3002,
+   "detail": "[ths_fuyao] biz error code=3002: No adjustment events for thscode=001248.SZ"
+  },
+  {
+   "symbol": "sz301660",
+   "type": "biz_error",
+   "code": 3002,
+   "detail": "[ths_fuyao] biz error code=3002: No adjustment events for thscode=301660.SZ"
+  },
+  {
+   "symbol": "sz301666",
+   "type": "biz_error",
+   "code": 3002,
+   "detail": "[ths_fuyao] biz error code=3002: No adjustment events for thscode=301666.SZ"
+  },
+  {
+   "symbol": "sz301689",
+   "type": "biz_error",
+   "code": 3002,
+   "detail": "[ths_fuyao] biz error code=3002: No adjustment events for thscode=301689.SZ"
+  }
+ ]
+}

@@ -1,0 +1,75 @@
+providers:
+  # ★ v3.1：用户决策 —— 移除 tushare；主源改为同花顺 fuyao，AKShare 1.20.35 升为备源。
+  # ★ 保留原有兜底：baostock（串行）与东财 push2his（最后兜底）【用户明确要求不得清除】。
+  # 完整链：ths_fuyao(主) → akshare(备) → baostock(串行兜底) → eastmoney(最后兜底)
+  market:
+    primary: ths_fuyao
+    fallback: [akshare, baostock, eastmoney]
+    ths_fuyao:
+      api_key: "${THS_API_KEY}"
+      base_url: "https://fuyao.aicubes.cn"
+      doc: "https://fuyao.aicubes.cn/docs/api-reference/overview/"
+      capabilities:
+        prices: "/api/a-share/prices"
+        market_dumps: "/dump/market-dumps"
+        corporate_actions: "/api/a-share/corporate-actions"
+        a_share_index: "/api/a-share-index"
+        financials: "/api/a-share/financials/indicators"
+      # 官方《接口总览》硬约束，逐条见 04_DATA_SOURCES.md §2.2.1
+      check_http_status: true          # HTTP 429 无论响应体是否含信封都按限流处理
+      check_envelope_code: true        # HTTP 200 + 业务错误由信封 code 表达
+      rate_limit_codes: [4001]
+      http_rate_limit_status: 429
+      max_concurrency: 2               # 避免短时间集中 / 高并发调用
+      min_interval_sec: 0.5
+      backoff: {base_sec: 2, factor: 2, max_sec: 60, jitter: true}
+      retry_immediately: false         # 禁止立即连续重试
+      thscode_nullable: true           # thscode 无法确定时可为 null
+      api_response_envelope: true      # 正常业务响应统一 ApiResponse
+    akshare:
+      version: "1.20.35"               # ★ 锁定版本，见 requirements.txt
+      doc: "https://akshare.akfamily.xyz/data/stock/stock.html"
+      # ★ 官方入口页未给出具体接口名/参数，只提供 ak.search() / Ctrl+K 检索。
+      # 具体函数名与返回字段由 T00 用 ak.search() 实测后写入 docs/CONNECTIVITY.md，
+      # 禁止在本文件臆测或硬编码未核实的接口名。
+      interface_discovery: "ak.search()"
+      resolved_interfaces: {}          # T00 产出后回填：{用途: {func, params, fields}}
+      timeout: 30
+      retry: 3
+      max_concurrency: 4
+    baostock:
+      # ★ 保留：无 key、历史日线稳定；明确不支持并发
+      serial: true
+      max_concurrency: 1
+      timeout: 60
+      retry: 2
+      note: "最后第二兜底；仅在主源与 akshare 均失败时启用"
+    eastmoney:
+      # ★ 保留：push2his 曾返回 502，定位为「最后兜底 + 交叉校验」，不得作主源
+      base_url: "https://push2his.eastmoney.com"
+      known_issue: "曾返回 502"
+      timeout: 20
+      retry: 2
+      max_concurrency: 2
+      note: "最后兜底；T00 需在 CONNECTIVITY.md 记录实测状态（含 502 复现情况）"
+  fundamental:
+    primary: ths_fuyao                 # financials/indicators
+    fallback: [akshare, baostock, eastmoney]
+  intraday:
+    primary: akshare                   # 60min 线，官方总览未列此能力
+    fallback: [eastmoney]
+    interval: 60m
+    retry: 3
+  calendar:
+    primary: akshare
+    fallback: [baostock]
+    # 具体函数名待 T00 用 ak.search() 核实后回填
+    resolved_func: null
+  index_benchmark:
+    primary: ths_fuyao                 # a-share-index
+    fallback: [akshare, eastmoney]
+storage:
+  postgres_dsn: "${POSTGRES_DSN}"
+  redis_url: "${REDIS_URL}"
+  parquet_dir: "./data/parquet"
+  archive_json: "./web/data.json"     # 只读

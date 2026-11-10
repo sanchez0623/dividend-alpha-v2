@@ -1,0 +1,52 @@
+# dividend-alpha · 分红捕获策略（DC）唯一参数真值
+# 与 S* 完全隔离：独立账户/独立净值/独立配置，禁止把本文件参数混入 config/strategy.yaml
+# 修改后必须重跑 make test；代码禁止硬编码本文件任何参数
+meta:
+  version: "1.0"
+  strategy_id: "DC"
+  account_id: "DC"
+  start_date: "2026-11-05"
+  init_cash: 3000000
+
+universe:
+  min_market_cap: 5.0e10          # 500 亿（用户口径）
+  min_div_yield_ttm: 0.06         # 股息率阈值 6%（用户口径：为了找到更多标的）
+  exclude_st: true
+  exclude_delisting: true
+  refresh_weekday: 0              # 0=周一：全市场池刷新
+  max_cache_age_days: 14          # 候选池超过 14 天不再开新仓
+  lookahead_calendar_days: 10     # 覆盖 T-5 买点 + 缓冲
+  candidates_lookahead_days: 60   # 候选页/预抓取的除权窗口（未来 60 天）
+  refresh_since_days: 800         # 除权事件回看窗口（覆盖 TTM + 上年）
+  retry_attempts: 3               # 单只除权事件查询重试次数
+  retry_backoff_sec: 2            # 退避基数（2/4/8s）
+  max_fail_ratio: 0.05            # 失败率超 5% → 熔断本次刷新，保留上次缓存
+
+schedule:
+  entry_lead_trading_days: 5      # 除权前一周（5 个交易日）
+  hold_days_after_ex: 30          # 除权后一个月（自然日）
+  max_concurrent_positions: 1     # 每次只买一个股票
+
+trend:
+  enabled: true
+  mode: nondown                   # nondown | up | up_pull
+  ma_short: 20
+  ma_mid: 60
+  ma_long: 120
+  rsi_period: 14
+  rsi_min: 35
+  rsi_max: 70
+  drop_20d_min: -0.12
+  drop_20d_max: 0.03
+
+dividend:
+  # A 股红利税档位：<=30 天 20% / 31~365 天 10% / >365 天 0%
+  tax_rate_short: 0.20
+  tax_rate_mid: 0.10
+  tax_rate_long: 0.0
+  withdraw_ratio: 0.30            # 卖出后提取分红金额的 30%
+  withdraw_base: net              # net=先扣红利税再取 30%；gross=按税前
+
+execution:
+  lot_size: 100
+  cash_buffer: 0.005              # 买入时预留 0.5% 现金覆盖成本

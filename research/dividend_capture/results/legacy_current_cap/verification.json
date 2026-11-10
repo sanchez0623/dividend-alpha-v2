@@ -1,0 +1,233 @@
+{
+  "generated_at": "2026-11-08 23:39:04+0800",
+  "checks": [
+    {
+      "section": "A",
+      "name": "日历行数 2877",
+      "ok": true,
+      "detail": "n=2877"
+    },
+    {
+      "section": "A",
+      "name": "日历首末",
+      "ok": true,
+      "detail": "2015-01-05..2026-11-06"
+    },
+    {
+      "section": "A",
+      "name": "日历无重复升序",
+      "ok": true,
+      "detail": "ok"
+    },
+    {
+      "section": "A",
+      "name": "池 344 只",
+      "ok": true,
+      "detail": "n=344"
+    },
+    {
+      "section": "A",
+      "name": "日线行数=cache 重算",
+      "ok": true,
+      "detail": "cache=795838 parquet=795838"
+    },
+    {
+      "section": "A",
+      "name": "日线数值=cache 重算",
+      "ok": true,
+      "detail": "不一致=0 maxΔ=0.0"
+    },
+    {
+      "section": "A",
+      "name": "除权事件=cache 重算",
+      "ok": true,
+      "detail": "键差=0 值差=0 事件数=3613"
+    },
+    {
+      "section": "B",
+      "name": "候选数 > 0",
+      "ok": true,
+      "detail": "n=3275 stats={'out_of_window': 204, 'candidate_events': 3275, 'rejected_yield': 2844, 'rejected_trend': 167, 'rejected_no_entry_or_exit': 62, 'rejected_no_entry_bar': 33, 'rejected_cap': 58}"
+    },
+    {
+      "section": "B",
+      "name": "entry=除权前第5交易日 & entry<ex",
+      "ok": true,
+      "detail": "异常=0"
+    },
+    {
+      "section": "B",
+      "name": "exit>=除权+30自然日",
+      "ok": true,
+      "detail": "异常=0"
+    },
+    {
+      "section": "B",
+      "name": "趋势只用<=entry数据",
+      "ok": true,
+      "detail": "异常=0"
+    },
+    {
+      "section": "B",
+      "name": "TTM 只用<=ex_date事件",
+      "ok": true,
+      "detail": "异常=0"
+    },
+    {
+      "section": "B",
+      "name": "股息率=TTM/买入价",
+      "ok": true,
+      "detail": "异常=0"
+    },
+    {
+      "section": "B",
+      "name": "市值=entry日估算",
+      "ok": true,
+      "detail": "异常=0"
+    },
+    {
+      "section": "C",
+      "name": "捕获次数=交易行数",
+      "ok": true,
+      "detail": "46 vs 46"
+    },
+    {
+      "section": "C",
+      "name": "现金每日 >= 0",
+      "ok": true,
+      "detail": "min=9415.22"
+    },
+    {
+      "section": "C",
+      "name": "现金最低值 >= 0",
+      "ok": true,
+      "detail": "9415.22"
+    },
+    {
+      "section": "C",
+      "name": "逐笔 entry<ex & exit>=ex+30 & 持有天数",
+      "ok": true,
+      "detail": "异常=0"
+    },
+    {
+      "section": "C",
+      "name": "买卖成本逐笔复算",
+      "ok": true,
+      "detail": "异常=0 maxΔ=0.0049"
+    },
+    {
+      "section": "C",
+      "name": "红利税逐笔复算",
+      "ok": true,
+      "detail": "异常=0 maxΔ=0.0050"
+    },
+    {
+      "section": "C",
+      "name": "30% 取现逐笔复算",
+      "ok": true,
+      "detail": "异常=0 maxΔ=0.0042"
+    },
+    {
+      "section": "C",
+      "name": "净盈亏=价格+分红损益",
+      "ok": true,
+      "detail": "异常=0 maxΔ=0.0100"
+    },
+    {
+      "section": "C",
+      "name": "期末权益=期初+Σ净盈亏+未平仓市值",
+      "ok": true,
+      "detail": "复算=1930850.30 报告=1930850.32"
+    },
+    {
+      "section": "C",
+      "name": "期末总财富=权益+累计取现",
+      "ok": true,
+      "detail": "取现合计=1678379.33"
+    },
+    {
+      "section": "C",
+      "name": "nav 末日 wealth=报告期末总财富",
+      "ok": true,
+      "detail": "3609229.63 vs 3609229.63"
+    },
+    {
+      "section": "C",
+      "name": "nav 末日 equity=报告期末权益",
+      "ok": true,
+      "detail": "1930850.32 vs 1930850.32"
+    },
+    {
+      "section": "C",
+      "name": "CAGR 与期末总财富一致",
+      "ok": true,
+      "detail": "cagr=0.017203"
+    },
+    {
+      "section": "D",
+      "name": "重跑 trades 哈希=summary",
+      "ok": true,
+      "detail": "c7b6c572fedc2fec"
+    },
+    {
+      "section": "D",
+      "name": "重跑 nav 哈希=summary",
+      "ok": true,
+      "detail": "727a18cbf5709d25"
+    },
+    {
+      "section": "D",
+      "name": "连续两次重跑哈希一致",
+      "ok": true,
+      "detail": "c7b6c572fedc / c7b6c572fedc"
+    },
+    {
+      "section": "E",
+      "name": "pool62 有数据标的 >= 55",
+      "ok": true,
+      "detail": "n=62"
+    },
+    {
+      "section": "E",
+      "name": "pool62 捕获次数>0",
+      "ok": true,
+      "detail": "n=34"
+    },
+    {
+      "section": "E",
+      "name": "pool62 日期规则",
+      "ok": true,
+      "detail": "异常=0"
+    },
+    {
+      "section": "E",
+      "name": "pool62 现金>=0",
+      "ok": true,
+      "detail": "min=11726.97"
+    },
+    {
+      "section": "E",
+      "name": "pool62 可复现",
+      "ok": true,
+      "detail": "hash match"
+    }
+  ],
+  "n_checks": 35,
+  "n_pass": 35,
+  "n_fail": 0,
+  "all_ok": true,
+  "reproducibility": {
+    "full": {
+      "trades_sha256": "c7b6c572fedc2fec056de1d100a4b105fdacd0863286ee976f12ff47b394d988",
+      "nav_sha256": "727a18cbf5709d257727086abfc409ab1de7b7db884909a74ea396f46d3b14bb",
+      "captures": 46,
+      "final_wealth": 3609229.63
+    },
+    "pool62": {
+      "trades_sha256": "cbcc47d9b05c5f9d7fabe5cc3288a15ed96d230f0d59c4e35cad544cb4191ad8",
+      "nav_sha256": "596c14f08b01b277a3ed3e5b47613b5fe878cc4b155ca9f62df2245ccad7be34",
+      "captures": 34,
+      "final_wealth": 3702782.78
+    }
+  }
+}

@@ -1,0 +1,27 @@
+# 数据源配置（多源 fallback）
+providers:
+  market:
+    primary: tushare
+    fallback: [akshare, baostock]
+    tushare:
+      token: ${TUSHARE_TOKEN}
+      rate_limit: 500        # 每分钟调用上限
+    akshare:
+      timeout: 30
+      retry: 3
+  fundamental:
+    primary: tushare
+    fallback: [akshare]
+  intraday:
+    primary: akshare
+    interval: 60m
+    retry: 3
+
+cache:
+  backend: redis
+  ttl_seconds: 86400
+  parquet_dir: ./data/parquet
+
+storage:
+  postgres_dsn: ${POSTGRES_DSN}
+  redis_url: ${REDIS_URL}

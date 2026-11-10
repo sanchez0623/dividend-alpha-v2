@@ -1,0 +1,17 @@
+# Docker 构建上下文排除（缩小镜像、避免泄漏 .env / 本地库）
+.git
+.venv
+venv
+__pycache__
+**/__pycache__
+*.pyc
+.pytest_cache
+.mypy_cache
+.ruff_cache
+data/
+web/node_modules/
+web/dist/
+research/
+.env
+.env.local
+*.db

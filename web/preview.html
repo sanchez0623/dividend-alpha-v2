@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>dividend-alpha · 前瞻验证系统（预览）</title>
+<script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7/babel.min.js"></script>
+<style>
+:root{--bg:#0B1220;--card:#131C2E;--card2:#101A2B;--line:#22304A;--acc:#2DD4A7;--acc-dim:#1B7F66;--amber:#F5A524;--red:#EF6461;--blue:#7C9CC4;--text:#E8EEF7;--muted:#8A9AB5;--dim:#5C6E8C;--mono:"SF Mono","JetBrains Mono","Roboto Mono",Consolas,monospace}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:13px/1.5 -apple-system,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;background-image:linear-gradient(rgba(45,212,167,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(45,212,167,.018) 1px,transparent 1px);background-size:44px 44px}
+.app{display:flex;min-height:100vh}
+.sidebar{width:216px;position:sticky;top:0;height:100vh;border-right:1px solid var(--line);background:var(--card);display:flex;flex-direction:column;padding:18px 0}
+.brand{padding:0 18px 14px;font-weight:700}
+.brand small{display:block;color:var(--dim);font-weight:400;font-size:10.5px;margin-top:2px}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav a{display:flex;align-items:center;gap:10px;padding:9px 18px;color:var(--muted);text-decoration:none;cursor:pointer;border-left:2px solid transparent;font-size:13px}
+.nav a.on{color:var(--text);background:rgba(45,212,167,.10);border-left-color:var(--acc)}
+.nav .grp{padding:12px 18px 4px;color:var(--dim);font-size:10px;letter-spacing:1px}
+.nav a .ic{width:16px;text-align:center;color:var(--dim)}
+.nav a.on .ic{color:var(--acc)}
+.side-foot{margin-top:auto;padding:12px 18px;color:var(--dim);font-size:10.5px;border-top:1px solid var(--line)}
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
+.topbar{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:12px 22px;border-bottom:1px solid var(--line);background:rgba(19,28,46,.6);position:sticky;top:0;backdrop-filter:blur(6px);z-index:5}
+.topbar .l,.topbar .r{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.pill{font-size:11px;padding:3px 9px;border:1px solid var(--line);border-radius:20px;color:var(--muted)}
+.pill.g{color:var(--acc);border-color:var(--acc-dim)}
+.content{padding:20px 22px;flex:1}
+h1{font-size:19px;margin:0 0 3px}
+.sub{color:var(--muted);font-size:12px;margin-bottom:16px}
+.grid{display:grid;gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:9px;padding:16px}
+.card h3{margin:0 0 12px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px}
+.card h3::before{content:"";width:3px;height:12px;background:var(--acc);border-radius:2px}
+.card h3 .tag{margin-left:auto;font-size:10px;color:var(--dim);border:1px solid var(--line);padding:1px 7px;border-radius:4px;font-weight:400}
+.kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:14px}
+.kpi .lbl{color:var(--muted);font-size:11px}
+.kpi .v{font:24px/1.2 var(--mono);font-weight:600;letter-spacing:-.5px;margin-top:4px}
+.kpi .dc{font-size:10px;margin-top:4px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{text-align:left;color:var(--dim);font-size:10.5px;font-weight:500;padding:6px 8px;border-bottom:1px solid var(--line)}
+td{padding:6px 8px;border-bottom:1px solid rgba(34,48,74,.5)}
+tbody tr:nth-child(even){background:rgba(255,255,255,.012)}
+tbody tr:hover{background:rgba(45,212,167,.055)}
+.num{text-align:right;font-family:var(--mono)}
+.badge{font-size:10.5px;padding:2px 7px;border-radius:4px;border:1px solid var(--line);color:var(--muted)}
+.badge.g{color:var(--acc);border-color:var(--acc-dim)}
+.badge.r{color:var(--red);border-color:rgba(239,100,97,.4)}
+.badge.a{color:var(--amber);border-color:rgba(245,165,36,.4)}
+.badge.d{color:var(--dim)}
+.tag{font-size:10px;color:var(--dim);border:1px solid var(--line);padding:1px 6px;border-radius:4px}
+.tag.amber{color:var(--amber);border-color:rgba(245,165,36,.4)}
+.dc-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--acc);margin-right:4px}
+.callout{border-left:3px solid var(--amber);background:rgba(245,165,36,.06);padding:10px 12px;border-radius:0 6px 6px 0;font-size:12px;color:var(--muted);margin:12px 0}
+.callout.g{border-left-color:var(--acc);background:rgba(45,212,167,.06)}
+.callout.amber{border-left-color:var(--amber);background:rgba(245,165,36,.10);color:var(--text)}
+.callout b{color:var(--text)}
+pre{background:var(--card2);border:1px solid var(--line);border-radius:6px;padding:12px;overflow:auto;max-height:420px;line-height:1.6;color:var(--muted);font-family:var(--mono);font-size:11px}
+code{font-family:var(--mono);font-size:11px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:5px;overflow:hidden}
+.seg button{background:transparent;border:0;color:var(--muted);padding:6px 14px;cursor:pointer;font-size:12px}
+.seg button.on{background:rgba(45,212,167,.12);color:var(--acc)}
+.seg button:disabled{opacity:.5;cursor:not-allowed}
+.progress{margin:10px 0}
+.progress .row{display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted);margin-bottom:5px}
+.progress .track{height:15px;background:var(--card2);border-radius:3px;overflow:hidden;position:relative}
+.progress .fill{height:100%;background:var(--acc);border-radius:3px}
+.progress .fill.dim{background:rgba(45,212,167,.6)}
+.progress .fill.neg{background:var(--red)}
+a.link{color:var(--acc);cursor:pointer;text-decoration:none}
+.footer{padding:14px 22px;border-top:1px solid var(--line);color:var(--dim);font-size:11px}
+.banner{border-left:3px solid var(--amber);background:rgba(245,165,36,.10);padding:12px 14px;border-radius:0 6px 6px 0;margin-bottom:16px;font-size:12.5px}
+.banner b{color:var(--amber)}
+.skel{color:var(--dim);font-size:12px}
+@media(max-width:1200px){.kpis{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" data-presets="react">
+const { useState, useEffect } = React;
+const DC = { "实时": null, "演示": <span className="tag">演示</span>, "估算": <span className="tag amber">估算</span>, "归档": <span className="tag amber">归档 · 只读</span> };
+const money = v => v==null?"—":"¥"+Number(v).toLocaleString("zh-CN",{maximumFractionDigits:0});
+const pct = (v,d=2) => v==null?"—":(v>=0?"+":"")+v.toFixed(d)+"%";
+const nav = p => window.dispatchEvent(new CustomEvent("da:nav",{detail:p}));
+
+function Card({title,tag,children,style}){return(<div className="card" style={style}><h3>{title}{tag?<span className="tag">{tag}</span>:null}</h3>{children}</div>);}
+function Num({n,fmt}){ if(!n) return <span className="skel">—</span>; const t=fmt?(n.value==null?"—":fmt(n.value)):(n.value==null?"—":String(n.value)); return <span>{t} {DC[n.data_class]}</span>; }
+
+// ★ 数据源真实状态：启动时探活后端 /da/v1/datasources（后端未开则降级为 offline）
+const DS_API="http://127.0.0.1:8100/da/v1/datasources";
+const DS_STATUS={connected:["g","已连通"],configured:["a","已配置"],missing:["m","未配置"],failed:["r","失败"],offline:["m","后端未启动"]};
+function useDatasources(){
+  const [ds,setDs]=useState(null);
+  useEffect(()=>{
+    let alive=true;
+    fetch(DS_API).then(r=>r.json()).then(d=>{if(alive)setDs(d);})
+      .catch(()=>{if(alive)setDs({offline:true,sources:[]});});
+    return()=>{alive=false;};
+  },[]);
+  return ds;
+}
+function DsBadge({status}){const s=DS_STATUS[status]||DS_STATUS.offline;return <span className={"badge "+s[0]}>{s[1]}</span>;}
+
+// ★ 页面数据：从后端 /da/v1/* 拉真值（后端未开则各页回退到占位）
+const API="http://127.0.0.1:8100/da/v1";
+const ENDPOINTS={overview:"/overview",positions:"/positions",signals:"/signals",
+  attribution:"/attribution",benchmarks:"/benchmarks?mode=progress",withdraw:"/withdraw"};
+function useApi(){
+  const [data,setData]=useState({});
+  useEffect(()=>{
+    let alive=true;
+    Object.entries(ENDPOINTS).forEach(([k,path])=>{
+      fetch(API+path).then(r=>r.json()).then(j=>{if(alive)setData(d=>({...d,[k]:j}));})
+        .catch(()=>{});
+    });
+    return()=>{alive=false;};
+  },[]);
+  return data;
+}
+function Bar({label,value,target,neutral,neg}){ let p=0; if(neutral)p=Math.min(Math.abs(value)*10,100); else if(target)p=Math.max(0,Math.min(100,value/target*100)); const fmt=label==="做T配对样本"?`${value} / 300 笔`:label==="运行天数"?`${value} / 1095 天`:neutral?`${value>=0?"+":""}${value.toFixed(2)}%`:String(value); return(<div className="progress"><div className="row"><span>{label}</span><span className="num" style={{fontFamily:"var(--mono)"}}>{fmt}</span></div><div className="track"><div className={"fill "+(neg?"neg":p>=100?"":"dim")} style={{width:p+"%"}}/></div></div>); }
+
+function Overview({ds,api}){ const prim=ds&&!ds.offline?ds.sources.find(s=>s.name==="ths_fuyao"):null; const ov=api&&api.overview;
+ const kpi=(l,n,fmt)=>({l,v:n?(fmt?fmt(n.value):String(n.value)):"—",dc:n?n.data_class:"—"});
+ const K=ov?[kpi("总资产",ov.total_equity,money),kpi("可用现金",ov.cash,money),kpi("持仓市值",ov.positions_value,money),kpi("当日盈亏",null),kpi("持仓只数",null)]:[];
+ return(<><div className="banner">生产系统自 <b>{ov?ov.data_date:"2026-11-05"}</b> 起前瞻运行。历史基线数字仅供参照 → <a className="link" onClick={()=>nav("archive")}>历史归档</a></div>
+<div className="kpis" style={{marginBottom:14}}>
+ {K.map(({l,v,dc})=>(<div className="card kpi" key={l}><div className="lbl">{l}</div><div className="v">{v}</div><div className="dc">{DC[dc]||""}</div></div>))}
+ <div className="card kpi"><div className="lbl">数据源健康</div><div className="v" style={{fontSize:15}}><DsBadge status={prim?prim.status:(ds&&!ds.offline?"failed":"offline")}/></div><div className="dc">{prim&&prim.status==="connected"?("主源 fuyao · "+(prim.bars||0)+" 根K线"):"启动后端显示真值"}</div></div>
+</div>
+<div className="grid" style={{gridTemplateColumns:"2fr 1fr",marginBottom:14}}>
+ <Card title="前瞻运行进度" tag="实时">{(ov?ov.progress:[{label:"运行天数",value:1,target:1095},{label:"累计净值差 S*−B2",value:0,target:null},{label:"做T配对样本",value:0,target:300}]).map(p=><Bar key={p.label} label={p.label} value={p.value} target={p.target} neutral={p.target==null}/>)}</Card>
+ <Card title="研究基线" tag="归档"><div className="callout amber">历史样本年化 <b>10.61%</b>、样本外 15.61% —— 仅为 2015-2026 历史样本里的一个数，不是预期收益。<a className="link" onClick={()=>nav("archive")}>查看归档</a></div></Card>
+</div></>);}
+
+function Positions(){ const cols=["代码","名称","行业L1","银行子类","股息率TTM","持仓市值","成本价","浮盈","持有天数","可用股数","状态"]; return(<div className="grid" style={{gridTemplateColumns:"2fr 1fr"}}>
+ <Card title="持仓明细（10 只 · 等权）" tag="价格口径：前复权"><table><thead><tr>{cols.map(c=><th key={c} className={["股息率TTM","持仓市值","成本价","浮盈","持有天数","可用股数"].includes(c)?"num":""}>{c}</th>)}</tr></thead><tbody><tr><td colSpan={cols.length} className="skel">待数据管道（核心仓 N=10，等权；初期为演示占位）</td></tr></tbody></table></Card>
+ <div><Card title="行业分散" tag="L1≤1 · 银行子类≤2"><div style={{color:"var(--muted)",fontSize:12}}>10 只 · 9 类 L1 · 银行按子类占 2 席</div><div className="callout">「涨了就换」已四次证伪：<b>换出越主动，结果越差</b>。</div></Card>
+ <Card title="卖出规则" tag="锁定"><div style={{fontSize:12,color:"var(--muted)"}}>硬规则：股息率&lt;1.5% / 分红中断 / 持有满 5 年 → 全部卖出<br/>超涨：浮盈 ≥50% → 一次性清仓<br/>禁止：轮动 / 条件换仓 / 强制换仓 / 趋势保护</div></Card></div>
+</div>);}
+
+function Signals(){ const cols=["日期","标的","20日跌幅","RSI(14)","强度","预期净收益","成本闸","执行状态"]; return(<><div className="callout g">因子级（历史样本）：净超额 <b>+3.09%</b>，t=11.28，胜率 60.1%（2,026 样本）；B6 安慰剂分位 <b>75%</b>；组合层不显著。增强层标记 <b>experimental</b>，前 2-3 年可能颗粒无收。</div>
+<div className="grid" style={{gridTemplateColumns:"2fr 1fr",marginTop:14}}>
+ <Card title="信号流水" tag="价格口径：前复权"><table><thead><tr>{cols.map(c=><th key={c} className={["20日跌幅","RSI(14)","强度","预期净收益"].includes(c)?"num":""}>{c}</th>)}</tr></thead><tbody><tr><td colSpan={cols.length} className="skel">待数据管道（触发：20日跌幅≥12% 且 RSI(14)＜25，基于前复权）</td></tr></tbody></table></Card>
+ <div><Card title="参数（config 读取）"><pre>{`overlay:\n  trigger:\n    lookback_days: 20\n    drop_threshold: 0.12\n    rsi_period: 14\n    rsi_threshold: 25\n  holding_days: 30\n  max_concurrent: 12\n  min_expected_net: 0.008\n  cost_multiple: 3\n  price_basis: ADJ`}</pre></Card>
+ <Card title="实证状态" tag="历史样本"><div style={{fontSize:12,color:"var(--muted)"}}>因子级净超额 +3.09% · t=11.28<br/>B6 分位 75% · 组合层不显著</div></Card></div>
+</div></>);}
+
+function Attribution({api}){ const at=api&&api.attribution; const cf=at&&at.cashflow;
+ const rows=[["分红到账（净）",cf&&cf.dividend_net],["交易成本",cf&&cf.trading_cost],["红利税",cf&&cf.dividend_tax],["逆回购利息",cf&&cf.repo_interest]];
+ return(<><div className="grid" style={{gridTemplateColumns:"1fr 1fr",marginBottom:14}}>
+ <Card title="前瞻模块贡献" tag="实时"><div style={{color:"var(--muted)",fontSize:12,marginBottom:8}}>已运行 {at?at.running_days.value:"—"} 天</div>{(at?at.modules.map(m=>m.name):["核心仓分红","增强层(实验性)","交易成本","逆回购利息"]).map(m=>(<div className="progress" key={m}><div className="row"><span>{m}</span><span className="num">待积累</span></div><div className="track"><div className="fill dim" style={{width:"4%"}}/></div></div>))}</Card>
+ <Card title="现金流拆解" tag="实时"><table><tbody>{rows.map(([r,n])=><tr key={r}><td>{r}</td><td className="num">{n?money(n.value)+" "+DC[n.data_class]:"¥0"} </td></tr>)}</tbody></table></Card>
+</div><Card title="分年度收益" tag="样本 &lt; 3 年"><div className="callout">样本不足 3 年，暂以占位展示，<b>不显示年化</b>。历史分年度见 <a className="link" onClick={()=>nav("archive")}>历史归档</a>。</div></Card></>);}
+
+function Benchmarks({api}){ const [mode,setMode]=useState("progress"); const [locked,setLocked]=useState(false);
+ const bm=api&&api.benchmarks; const benches=bm?bm.benchmarks.map(b=>[b.id,b.name,b.nav!=null?Number(b.nav).toLocaleString("zh-CN",{maximumFractionDigits:0}):"—",b.status]):[["S*","策略持仓（本系统）","…","—"]];
+ const needD=bm?bm.need_days:1094, needT=bm?bm.need_trades:300;
+ return(<><div style={{display:"flex",gap:12,alignItems:"center",marginBottom:14}}>
+ <div className="seg"><button className={mode==="progress"?"on":""} onClick={()=>setMode("progress")}>前瞻进度（默认）</button><button className={mode==="annual"?"on":""} onClick={()=>{setMode("annual");setLocked(true);}}>年化超额 🔒</button></div>
+ <span style={{color:"var(--muted)",fontSize:12}}>生产运行仅 D+1；样本 &lt;3 年时不计算、不渲染年化超额字段</span></div>
+ {mode==="annual"&&locked&&<div className="card" style={{marginBottom:14}}><h3>样本不足，暂不展示年化超额</h3><div className="callout amber">还需 <b>{needD}</b> 天 / <b>{needT}</b> 笔做T配对样本<br/>年化超额在样本 &lt;3 年时无统计意义 → <a className="link" onClick={()=>nav("archive")}>查看历史基准存档</a></div></div>}
+ <div className="grid" style={{gridTemplateColumns:"1fr 2fr"}}>
+ <Card title="前瞻进度" tag="实时">{(bm?bm.progress:[{label:"运行天数",value:1,target:1095},{label:"做T配对样本",value:0,target:300}]).map(p=><Bar key={p.label} label={p.label} value={p.value} target={p.target}/>)}</Card>
+ <Card title="B1–B6 状态" tag="实时"><table><thead><tr><th>基准</th><th>定义</th><th className="num">当前净值</th><th>状态</th></tr></thead><tbody>{benches.map(([id,def,navv,st])=><tr key={id}><td>{id}</td><td>{def}</td><td className="num">{navv}</td><td><span className={"badge "+(st==="积累中"?"d":st==="估算"?"a":"g")}>{st}</span></td></tr>)}</tbody></table></Card>
+ </div>
+ <div className="callout"><b>判定树</b>：S*−B2 &gt; 成本 <b>且</b> 显著 &gt; B6（p&lt;0.05，样本≥300）才算有效。</div></>);}
+
+function Withdraw({api}){ const wd=api&&api.withdraw; return(<><div className="kpis" style={{gridTemplateColumns:"repeat(3,1fr)",marginBottom:14}}>
+ <div className="card kpi"><div className="lbl">当年累计税前分红</div><div className="v">{wd?money(wd.ytd_gross.value):"…"}</div></div>
+ <div className="card kpi"><div className="lbl">应取 30%</div><div className="v">{wd?money(wd.planned_withdraw.value):"…"}</div></div>
+ <div className="card kpi"><div className="lbl">距 12 月最后交易日</div><div className="v" style={{fontSize:18}}>{wd?wd.next_withdraw_date:"2026-12-31"}</div></div></div>
+<div className="grid" style={{gridTemplateColumns:"1fr 1fr"}}>
+ <Card title="规则定义（config，只读）"><pre>{`dividend_withdraw:\n  mode: annual\n  timing: last_trading_day_of_December\n  base: ytd_cash_dividend_gross\n  ratio: 0.30\n  shortfall_policy: cash_only\n  idempotency_key: "(year, account_id)"\n  skip_incomplete_year: true`}</pre></Card>
+ <div><Card title="取现执行日志" tag="幂等 (year, account_id)"><table><thead><tr><th>年份</th><th className="num">应取</th><th className="num">实取</th><th className="num">兑现率</th><th>状态</th></tr></thead><tbody>{wd&&wd.history&&wd.history.length?wd.history.map(h=><tr key={h.year}><td>{h.year}</td><td className="num">{money(h.planned)}</td><td className="num">{money(h.actual)}</td><td className="num">{h.ratio!=null?(h.ratio*100).toFixed(1)+"%":"—"}</td><td>{h.status}</td></tr>):<tr><td colSpan={5} className="skel">{wd?wd.year:"2026"} 进行中，skip_incomplete_year</td></tr>}</tbody></table></Card>
+ <Card title="方案对比" tag="历史样本"><div className="callout g">历史方案对比已归入历史归档；<b>年底取 30% + cash_only</b> 为锁定方案。</div></Card></div>
+</div></>);}
+
+function Config({ds}){ return(<><div className="grid" style={{gridTemplateColumns:"2fr 1fr",marginBottom:14}}>
+ <Card title="参数只读展示" tag="config/strategy.yaml"><pre>{`meta:\n  version: "3.0"\n  mode: FORWARD_ONLY\n  start_date: "2026-11-05"\n  init_cash: 3000000\nuniverse:\n  min_consecutive_dividend_years: 5\n  min_market_cap: 3.0e10\n  min_div_yield_ttm: 0.025\nportfolio:\n  target_positions: 10\n  weighting: equal\n  core_ratio: 0.90\n  industry_constraint: {level: L1, max_per_industry: 1,\n    bank_subtype: {treat_as_distinct: true, max_per_subtype: 2}}\nselection: {rank_by: div_yield_ttm, rebalance: monthly}\nsell_rules:\n  hard: [{cond: "div_yield_ttm < 0.015"}, {cond: dividend_interrupted},\n         {cond: "holding_months >= 60"}]\n  overheat: {cond: "unrealized_gain >= 0.50"}\nrotation: {enabled: false}   # 已证伪\noverlay: {enabled: true, experimental: true, price_basis: ADJ}\ndividend_withdraw: {ratio: 0.30, timing: last_trading_day_of_December,\n  idempotency_key: "(year, account_id)", skip_incomplete_year: true}`}</pre><div className="callout">参数只读，禁止手改；修改需改文件并重启 worker。</div></Card>
+ <div><Card title="数据源状态" tag="实测探活"><table><tbody>{(ds&&!ds.offline?ds.sources:[{name:"—",role:"启动后端显示真值",status:"offline"}]).map(s=><tr key={s.name}><td>{s.name}</td><td>{s.role}</td><td><DsBadge status={s.status}/>{s.bars!=null&&<span style={{color:"var(--muted)",fontSize:10,marginLeft:6}}>{s.bars}根</span>}</td></tr>)}</tbody></table></Card>
+ <div className="kpis" style={{gridTemplateColumns:"1fr",marginTop:14}}><div className="card kpi"><div className="lbl">基线校验</div><div className="v" style={{fontSize:15}}><span className="badge g">通过</span></div><div className="dc">test_dividend_annual</div></div></div></div>
+</div><Card title="已知限制（8 条）"><table><tbody>{["历史年化 10.61% 只是历史样本里的一个数，不是预期收益。","增强层标记 experimental，前 2-3 年可能颗粒无收。","基准页样本 <3 年不展示年化超额。","轮动/条件换仓/强制换仓已证伪并永久关闭。","同花顺需加白名单；TUSHARE_TOKEN 待提供。","本系统模拟盘不下真实订单。","web/data.json 只读归档，禁止编辑。","全收益指数为估算口径。"].map((l,i)=><tr key={i}><td style={{width:30}}>{i+1}</td><td dangerouslySetInnerHTML={{__html:l}}/></tr>)}</tbody></table></Card></>);}
+
+const REPORTS=[["REPORT3/5/6/9/10/11","轮动 / 条件换仓 / 强制换仓 证伪","已证伪"],["REPORT7/8","增强层（做T）B6 安慰剂未通过","不显著"],["REPORT2/4","分红是收益主体","确认"],["REPORT10","取现方式对比（年底取最优）","确认"],["REPORT1","长期年化 15% 下修","已下修"]];
+function Archive(){ return(<><div className="banner">⚠️ 以下数字来自 <b>2015-01 ~ 2026-10 历史样本</b>，不是已验证的将来收益；生产系统自 <b>2026-11-05</b> 起前瞻运行。</div>
+<div className="kpis" style={{gridTemplateColumns:"repeat(5,1fr)",marginBottom:14}}>{[["年化","10.61%"],["样本外","15.61%"],["期末净值","931.9 万"],["夏普","0.39"],["最大回撤","-42.5%"]].map(([l,v])=><div className="card kpi" key={l}><div className="lbl">{l}</div><div className="v">{v}</div><div className="dc"><span className="tag amber">历史样本</span></div></div>)}</div>
+<div className="grid" style={{gridTemplateColumns:"1fr 1fr",marginBottom:14}}>
+ <Card title="10 轮实证结论摘要" tag="归档"><ul style={{fontSize:12,color:"var(--muted)",paddingLeft:18,margin:0}}><li>轮动 / 条件换仓 / 强制换仓：负贡献，永久关闭</li><li>增强层（做T）：B6 安慰剂未通过</li><li>分红是收益主体（累计≈本金 90.5%）</li><li>取现方式：年底取 30% 最优</li><li>长期年化 15% 已下修</li></ul></Card>
+ <Card title="REPORT 索引" tag="归档"><table><thead><tr><th>报告</th><th>主题</th><th>状态</th></tr></thead><tbody>{REPORTS.map(([n,t,s])=><tr key={n}><td>{n}</td><td>{t}</td><td><span className={"badge "+(s==="已证伪"?"r":"g")}>{s}</span></td></tr>)}</tbody></table></Card>
+</div>
+<div className="footer" style={{paddingLeft:0}}>研究脚本与缓存归档于 <code>research/</code>，不进生产镜像。本页数据只读，禁止编辑。</div></>);}
+
+const PAGES=[["overview","总览","◫","监控",Overview],["positions","持仓","▤","监控",Positions],["signals","信号","⌁","监控",Signals],["attribution","归因","◧","验证",Attribution],["benchmarks","基准对比","◎","验证",Benchmarks],["withdraw","取现流水","↧","验证",Withdraw],["config","配置","⚙","系统",Config],["archive","历史归档","▣","归档",Archive]];
+
+function App(){ const [page,setPage]=useState("overview");
+ const ds=useDatasources(); const api=useApi();
+ useEffect(()=>{const h=e=>setPage(e.detail);window.addEventListener("da:nav",h);return()=>window.removeEventListener("da:nav",h);},[]);
+ const cur=PAGES.find(p=>p[0]===page); const El=cur[4];
+ const topStatus=ds?(ds.offline?"offline":(ds.primary_connected?"connected":"failed")):"loading";
+ const topLabel={loading:"数据源 · 探活中",offline:"数据源 · 后端未启动",connected:"数据源 · 已连通",failed:"数据源 · 主源失败"}[topStatus];
+ const topCls={loading:"a",offline:"a",connected:"g",failed:"r"}[topStatus];
+ return(<div className="app"><aside className="sidebar"><div className="brand">dividend-alpha<small>A 股高股息 · 前瞻验证 v3.0</small></div>
+ <nav className="nav">{PAGES.map((p,i)=>(<React.Fragment key={p[0]}>{(i===0||PAGES[i-1][3]!==p[3])&&<div className="grp">{p[3]}</div>}<a className={page===p[0]?"on":""} onClick={()=>setPage(p[0])}><span className="ic">{p[2]}</span>{p[1]}{p[0]==="archive"&&<span style={{marginLeft:"auto",font:"9px var(--mono)",color:"var(--amber)"}}>存档</span>}</a></React.Fragment>))}</nav>
+ <div className="side-foot">唯一真值：docs/00_INDEX.md<br/>参数真值：config/strategy.yaml</div></aside>
+ <div className="main"><header className="topbar"><div className="l"><span className="pill">数据日期 2026-11-05</span><span className="pill g">● 前瞻运行 · 起始 2026-11-05</span><span className="pill">本金 ¥3,000,000</span></div><div className="r"><span className="pill g">● 盘后任务已完成</span><span className="pill">A股 · 日线</span><span className="pill">模拟盘</span><span className={"pill "+topCls}>{topLabel}</span></div></header>
+ <div className="content"><h1>{cur[1]}</h1><div className="sub">{page==="archive"?"研究存档 · 只读 · 不代表前瞻业绩":"生产系统自 2026-11-05 起前瞻运行，以下为前瞻运行数据"}</div><El ds={ds} api={api}/></div>
+ <footer className="footer">数值口径：无标注=实时 ｜ 演示 ｜ 估算 ｜ 归档·只读 —— dividend-alpha v3.0 · 唯一真值 docs/00_INDEX.md</footer></div></div>);}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>

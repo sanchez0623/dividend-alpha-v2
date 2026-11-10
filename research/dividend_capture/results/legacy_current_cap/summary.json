@@ -1,0 +1,926 @@
+{
+  "generated_at": "2026-11-09 14:34:50+0800",
+  "universe_mode": "current_cap",
+  "base": {
+    "label": "legacy_current_cap",
+    "start": "2016-01-04",
+    "end": "2026-11-06",
+    "years": 10.8392,
+    "params": {
+      "min_div_yield_ttm": 0.06,
+      "min_market_cap": 50000000000.0,
+      "entry_lead_trading_days": 5,
+      "hold_days_after_ex": 30,
+      "max_concurrent_positions": 1,
+      "trend_enabled": true,
+      "trend_mode": "nondown",
+      "tax_rates": [
+        0.2,
+        0.1,
+        0.0
+      ],
+      "withdraw_ratio": 0.3,
+      "withdraw_base": "net",
+      "lot_size": 100,
+      "cash_buffer": 0.005,
+      "cap_mode": "estimated",
+      "universe": "legacy_current_cap",
+      "exit_policy": {
+        "type": "fixed_30d"
+      },
+      "rank_mode": "pure",
+      "score_cfg": null
+    },
+    "init_cash": 3000000.0,
+    "final_equity": 1930850.32,
+    "final_wealth": 3609229.63,
+    "total_return": 0.203077,
+    "nav_total_return": -0.356383,
+    "cagr": 0.017203,
+    "ann_vol": 0.128679,
+    "sharpe": 0.2016,
+    "mdd": -0.246036,
+    "mdd_peak_date": "2022-05-09",
+    "mdd_trough_date": "2026-09-17",
+    "calmar": 0.0699,
+    "captures": 46,
+    "captures_per_year": 4.244,
+    "win_rate": 0.5,
+    "avg_trade_return": -0.007794,
+    "avg_holding_days": 38.13,
+    "gross_dividend": 6216219.69,
+    "tax": 621621.97,
+    "withdrawn": 1678379.33,
+    "costs": 241899.09,
+    "price_pnl": -4985368.08,
+    "dividend_pnl": 3916218.39,
+    "net_pnl": -1069149.7,
+    "tax_ratio_of_gross": 0.1,
+    "delayed_exits": 0,
+    "exposure_days": 1754,
+    "exposure_ratio": 0.443041,
+    "open_positions": [],
+    "skipped": {
+      "rejected_yield": 2844,
+      "executed": 46,
+      "rejected_trend": 167,
+      "rejected_cap": 58,
+      "captured": 46,
+      "skipped_overlap": 160
+    },
+    "buys_blocked": [],
+    "min_cash": 9415.22,
+    "benchmark": {
+      "name": "沪深300(价格指数,不含分红)",
+      "total_return": 0.168694,
+      "cagr": 0.014486,
+      "mdd": -0.456026
+    },
+    "yearly": [
+      {
+        "year": 2016,
+        "return": 0.15223,
+        "wealth_end": 3456690.05,
+        "equity_end": 3331223.93,
+        "cum_withdrawn": 125466.12,
+        "captures": 3
+      },
+      {
+        "year": 2017,
+        "return": 0.254316,
+        "wealth_end": 4335780.88,
+        "equity_end": 4148862.76,
+        "cum_withdrawn": 186918.12,
+        "captures": 2
+      },
+      {
+        "year": 2018,
+        "return": -0.029448,
+        "wealth_end": 4208102.43,
+        "equity_end": 3898028.67,
+        "cum_withdrawn": 310073.76,
+        "captures": 3
+      },
+      {
+        "year": 2019,
+        "return": -0.017622,
+        "wealth_end": 4133946.58,
+        "equity_end": 3618665.15,
+        "cum_withdrawn": 515281.42,
+        "captures": 4
+      },
+      {
+        "year": 2020,
+        "return": 0.062182,
+        "wealth_end": 4391003.88,
+        "equity_end": 3764526.19,
+        "cum_withdrawn": 626477.68,
+        "captures": 2
+      },
+      {
+        "year": 2021,
+        "return": 0.038738,
+        "wealth_end": 4561104.68,
+        "equity_end": 3714204.48,
+        "cum_withdrawn": 846900.2,
+        "captures": 4
+      },
+      {
+        "year": 2022,
+        "return": -0.096763,
+        "wealth_end": 4119758.49,
+        "equity_end": 3080952.17,
+        "cum_withdrawn": 1038806.32,
+        "captures": 4
+      },
+      {
+        "year": 2023,
+        "return": 0.02564,
+        "wealth_end": 4225390.4,
+        "equity_end": 2900241.16,
+        "cum_withdrawn": 1325149.24,
+        "captures": 7
+      },
+      {
+        "year": 2024,
+        "return": -0.060361,
+        "wealth_end": 3970340.95,
+        "equity_end": 2539492.63,
+        "cum_withdrawn": 1430848.32,
+        "captures": 5
+      },
+      {
+        "year": 2025,
+        "return": 0.055137,
+        "wealth_end": 4189254.09,
+        "equity_end": 2609733.75,
+        "cum_withdrawn": 1579520.33,
+        "captures": 7
+      },
+      {
+        "year": 2026,
+        "return": -0.138455,
+        "wealth_end": 3609229.63,
+        "equity_end": 1930850.32,
+        "cum_withdrawn": 1678379.31,
+        "captures": 5
+      }
+    ],
+    "candidate_stats": {
+      "out_of_window": 204,
+      "candidate_events": 3275,
+      "rejected_yield": 2844,
+      "rejected_trend": 167,
+      "rejected_no_entry_or_exit": 62,
+      "rejected_no_entry_bar": 33,
+      "rejected_cap": 58
+    },
+    "cap_mode": "estimated",
+    "cap_source_counts": {},
+    "shares_history_symbols": 0,
+    "eligible_candidates": 206,
+    "eligible_symbols": 73,
+    "exit_reason_counts": {
+      "max_hold": 46
+    },
+    "early_exits_le30d": 0,
+    "early_exit_tax": 0.0,
+    "early_exit_gross_div": 0.0,
+    "avg_holding_days_early": null,
+    "data_protection": {
+      "rule": "疑似数据错误 bar：非除权事件日 + 相邻bar间隔<=10自然日 + |单日收益|>30%；买入日/计划卖出日命中则跳过该笔，持仓估值与延迟卖出用最近可信价",
+      "anomaly_bars": 2,
+      "anomaly_symbols": 1,
+      "skipped_data_entry_bar": 0,
+      "skipped_data_exit_bar": 0,
+      "price_adjusted_trades": 0,
+      "resumption_gap_rule": "相邻bar间隔>30自然日的复牌跳变按真实价格处理，仅披露，不做修正"
+    },
+    "universe_count": 344,
+    "dataset_kind": "legacy_current_cap"
+  },
+  "subsamples": {
+    "2018": {
+      "label": "legacy_2018",
+      "start": "2018-01-02",
+      "end": "2026-11-06",
+      "years": 8.8433,
+      "params": {
+        "min_div_yield_ttm": 0.06,
+        "min_market_cap": 50000000000.0,
+        "entry_lead_trading_days": 5,
+        "hold_days_after_ex": 30,
+        "max_concurrent_positions": 1,
+        "trend_enabled": true,
+        "trend_mode": "nondown",
+        "tax_rates": [
+          0.2,
+          0.1,
+          0.0
+        ],
+        "withdraw_ratio": 0.3,
+        "withdraw_base": "net",
+        "lot_size": 100,
+        "cash_buffer": 0.005,
+        "cap_mode": "estimated",
+        "universe": "legacy_current_cap",
+        "exit_policy": {
+          "type": "fixed_30d"
+        },
+        "rank_mode": "pure",
+        "score_cfg": null
+      },
+      "init_cash": 3000000.0,
+      "final_equity": 1396347.78,
+      "final_wealth": 2474651.28,
+      "total_return": -0.175116,
+      "nav_total_return": -0.534551,
+      "cagr": -0.021534,
+      "ann_vol": 0.134932,
+      "sharpe": -0.1003,
+      "mdd": -0.256063,
+      "mdd_peak_date": "2022-05-09",
+      "mdd_trough_date": "2026-09-17",
+      "calmar": -0.0841,
+      "captures": 41,
+      "captures_per_year": 4.636,
+      "win_rate": 0.439024,
+      "avg_trade_return": -0.017095,
+      "avg_holding_days": 38.12,
+      "gross_dividend": 3993716.67,
+      "tax": 399371.66,
+      "withdrawn": 1078303.49,
+      "costs": 153760.75,
+      "price_pnl": -4119693.7,
+      "dividend_pnl": 2516041.51,
+      "net_pnl": -1603652.22,
+      "tax_ratio_of_gross": 0.1,
+      "delayed_exits": 0,
+      "exposure_days": 1563,
+      "exposure_ratio": 0.483901,
+      "open_positions": [],
+      "skipped": {
+        "rejected_yield": 2466,
+        "rejected_trend": 158,
+        "executed": 41,
+        "rejected_cap": 53,
+        "skipped_overlap": 148,
+        "captured": 41
+      },
+      "buys_blocked": [],
+      "min_cash": 6567.69,
+      "benchmark": {
+        "name": "沪深300(价格指数,不含分红)",
+        "total_return": -0.008103,
+        "cagr": -0.00092,
+        "mdd": -0.456026
+      },
+      "yearly": [
+        {
+          "year": 2018,
+          "return": -0.030764,
+          "wealth_end": 2907709.29,
+          "equity_end": 2818654.65,
+          "cum_withdrawn": 89054.64,
+          "captures": 3
+        },
+        {
+          "year": 2019,
+          "return": -0.018426,
+          "wealth_end": 2854132.84,
+          "equity_end": 2616686.04,
+          "cum_withdrawn": 237446.8,
+          "captures": 4
+        },
+        {
+          "year": 2020,
+          "return": 0.06513,
+          "wealth_end": 3040022.57,
+          "equity_end": 2722169.77,
+          "cum_withdrawn": 317852.8,
+          "captures": 2
+        },
+        {
+          "year": 2021,
+          "return": 0.040459,
+          "wealth_end": 3163017.48,
+          "equity_end": 2685798.5,
+          "cum_withdrawn": 477218.98,
+          "captures": 4
+        },
+        {
+          "year": 2022,
+          "return": -0.100924,
+          "wealth_end": 2843792.26,
+          "equity_end": 2227852.57,
+          "cum_withdrawn": 615939.69,
+          "captures": 4
+        },
+        {
+          "year": 2023,
+          "return": 0.026805,
+          "wealth_end": 2920019.79,
+          "equity_end": 2097072.93,
+          "cum_withdrawn": 822946.86,
+          "captures": 7
+        },
+        {
+          "year": 2024,
+          "return": -0.063148,
+          "wealth_end": 2735625.43,
+          "equity_end": 1836235.73,
+          "cum_withdrawn": 899389.71,
+          "captures": 5
+        },
+        {
+          "year": 2025,
+          "return": 0.057766,
+          "wealth_end": 2893651.84,
+          "equity_end": 1886780.58,
+          "cum_withdrawn": 1006871.26,
+          "captures": 7
+        },
+        {
+          "year": 2026,
+          "return": -0.1448,
+          "wealth_end": 2474651.28,
+          "equity_end": 1396347.78,
+          "cum_withdrawn": 1078303.5,
+          "captures": 5
+        }
+      ],
+      "candidate_stats": {
+        "out_of_window": 637,
+        "candidate_events": 2866,
+        "rejected_yield": 2466,
+        "rejected_trend": 158,
+        "rejected_no_entry_or_exit": 62,
+        "rejected_no_entry_bar": 9,
+        "rejected_cap": 53
+      },
+      "cap_mode": "estimated",
+      "cap_source_counts": {},
+      "shares_history_symbols": 0,
+      "eligible_candidates": 189,
+      "eligible_symbols": 71,
+      "exit_reason_counts": {
+        "max_hold": 41
+      },
+      "early_exits_le30d": 0,
+      "early_exit_tax": 0.0,
+      "early_exit_gross_div": 0.0,
+      "avg_holding_days_early": null,
+      "data_protection": {
+        "rule": "疑似数据错误 bar：非除权事件日 + 相邻bar间隔<=10自然日 + |单日收益|>30%；买入日/计划卖出日命中则跳过该笔，持仓估值与延迟卖出用最近可信价",
+        "anomaly_bars": 2,
+        "anomaly_symbols": 1,
+        "skipped_data_entry_bar": 0,
+        "skipped_data_exit_bar": 0,
+        "price_adjusted_trades": 0,
+        "resumption_gap_rule": "相邻bar间隔>30自然日的复牌跳变按真实价格处理，仅披露，不做修正"
+      },
+      "universe_count": 344,
+      "dataset_kind": "legacy_current_cap"
+    },
+    "2021": {
+      "label": "legacy_2021",
+      "start": "2021-01-04",
+      "end": "2026-11-06",
+      "years": 5.8371,
+      "params": {
+        "min_div_yield_ttm": 0.06,
+        "min_market_cap": 50000000000.0,
+        "entry_lead_trading_days": 5,
+        "hold_days_after_ex": 30,
+        "max_concurrent_positions": 1,
+        "trend_enabled": true,
+        "trend_mode": "nondown",
+        "tax_rates": [
+          0.2,
+          0.1,
+          0.0
+        ],
+        "withdraw_ratio": 0.3,
+        "withdraw_base": "net",
+        "lot_size": 100,
+        "cash_buffer": 0.005,
+        "cap_mode": "estimated",
+        "universe": "legacy_current_cap",
+        "exit_policy": {
+          "type": "fixed_30d"
+        },
+        "rank_mode": "pure",
+        "score_cfg": null
+      },
+      "init_cash": 3000000.0,
+      "final_equity": 1538267.69,
+      "final_wealth": 2376427.41,
+      "total_return": -0.207858,
+      "nav_total_return": -0.487244,
+      "cagr": -0.039133,
+      "ann_vol": 0.139675,
+      "sharpe": -0.2273,
+      "mdd": -0.283354,
+      "mdd_peak_date": "2022-05-09",
+      "mdd_trough_date": "2026-09-17",
+      "calmar": -0.1381,
+      "captures": 32,
+      "captures_per_year": 5.482,
+      "win_rate": 0.4375,
+      "avg_trade_return": -0.018972,
+      "avg_holding_days": 38.38,
+      "gross_dividend": 3104295.28,
+      "tax": 310429.54,
+      "withdrawn": 838159.72,
+      "costs": 123419.31,
+      "price_pnl": -3417438.35,
+      "dividend_pnl": 1955706.02,
+      "net_pnl": -1461732.31,
+      "tax_ratio_of_gross": 0.1,
+      "delayed_exits": 0,
+      "exposure_days": 1228,
+      "exposure_ratio": 0.575985,
+      "open_positions": [],
+      "skipped": {
+        "rejected_yield": 1793,
+        "executed": 32,
+        "captured": 32,
+        "rejected_trend": 125,
+        "skipped_overlap": 135,
+        "rejected_cap": 38
+      },
+      "buys_blocked": [],
+      "min_cash": 7260.1,
+      "benchmark": {
+        "name": "沪深300(价格指数,不含分红)",
+        "total_return": -0.230354,
+        "cagr": -0.043864,
+        "mdd": -0.456026
+      },
+      "yearly": [
+        {
+          "year": 2021,
+          "return": 0.045172,
+          "wealth_end": 3135515.45,
+          "equity_end": 2959865.97,
+          "cum_withdrawn": 175649.47,
+          "captures": 4
+        },
+        {
+          "year": 2022,
+          "return": -0.11222,
+          "wealth_end": 2783647.14,
+          "equity_end": 2455095.05,
+          "cum_withdrawn": 328552.09,
+          "captures": 4
+        },
+        {
+          "year": 2023,
+          "return": 0.030206,
+          "wealth_end": 2867728.84,
+          "equity_end": 2311022.01,
+          "cum_withdrawn": 556706.83,
+          "captures": 7
+        },
+        {
+          "year": 2024,
+          "return": -0.070854,
+          "wealth_end": 2664538.8,
+          "equity_end": 2023609.17,
+          "cum_withdrawn": 640929.63,
+          "captures": 5
+        },
+        {
+          "year": 2025,
+          "return": 0.065427,
+          "wealth_end": 2838871.82,
+          "equity_end": 2079485.55,
+          "cum_withdrawn": 759386.27,
+          "captures": 7
+        },
+        {
+          "year": 2026,
+          "return": -0.162897,
+          "wealth_end": 2376427.41,
+          "equity_end": 1538267.69,
+          "cum_withdrawn": 838159.73,
+          "captures": 5
+        }
+      ],
+      "candidate_stats": {
+        "out_of_window": 1388,
+        "candidate_events": 2123,
+        "rejected_yield": 1793,
+        "rejected_trend": 125,
+        "rejected_no_entry_or_exit": 62,
+        "rejected_cap": 38,
+        "rejected_no_entry_bar": 1
+      },
+      "cap_mode": "estimated",
+      "cap_source_counts": {},
+      "shares_history_symbols": 0,
+      "eligible_candidates": 167,
+      "eligible_symbols": 69,
+      "exit_reason_counts": {
+        "max_hold": 32
+      },
+      "early_exits_le30d": 0,
+      "early_exit_tax": 0.0,
+      "early_exit_gross_div": 0.0,
+      "avg_holding_days_early": null,
+      "data_protection": {
+        "rule": "疑似数据错误 bar：非除权事件日 + 相邻bar间隔<=10自然日 + |单日收益|>30%；买入日/计划卖出日命中则跳过该笔，持仓估值与延迟卖出用最近可信价",
+        "anomaly_bars": 2,
+        "anomaly_symbols": 1,
+        "skipped_data_entry_bar": 0,
+        "skipped_data_exit_bar": 0,
+        "price_adjusted_trades": 0,
+        "resumption_gap_rule": "相邻bar间隔>30自然日的复牌跳变按真实价格处理，仅披露，不做修正"
+      },
+      "universe_count": 344,
+      "dataset_kind": "legacy_current_cap"
+    }
+  },
+  "pool62": {
+    "full": {
+      "label": "legacy_pool62",
+      "start": "2016-01-04",
+      "end": "2026-11-06",
+      "years": 10.8392,
+      "params": {
+        "min_div_yield_ttm": 0.06,
+        "min_market_cap": 50000000000.0,
+        "entry_lead_trading_days": 5,
+        "hold_days_after_ex": 30,
+        "max_concurrent_positions": 1,
+        "trend_enabled": true,
+        "trend_mode": "nondown",
+        "tax_rates": [
+          0.2,
+          0.1,
+          0.0
+        ],
+        "withdraw_ratio": 0.3,
+        "withdraw_base": "net",
+        "lot_size": 100,
+        "cash_buffer": 0.005,
+        "cap_mode": "estimated",
+        "universe": "pool62",
+        "exit_policy": {
+          "type": "fixed_30d"
+        },
+        "rank_mode": "pure",
+        "score_cfg": null
+      },
+      "init_cash": 3000000.0,
+      "final_equity": 2489964.71,
+      "final_wealth": 3702782.78,
+      "total_return": 0.234261,
+      "nav_total_return": -0.170012,
+      "cagr": 0.019608,
+      "ann_vol": 0.125798,
+      "sharpe": 0.2228,
+      "mdd": -0.216139,
+      "mdd_peak_date": "2025-08-25",
+      "mdd_trough_date": "2026-05-26",
+      "calmar": 0.0907,
+      "captures": 34,
+      "captures_per_year": 3.137,
+      "win_rate": 0.470588,
+      "avg_trade_return": -0.003653,
+      "avg_holding_days": 38.06,
+      "gross_dividend": 4491918.76,
+      "tax": 449191.88,
+      "withdrawn": 1212818.07,
+      "costs": 188544.1,
+      "price_pnl": -3339944.1,
+      "dividend_pnl": 2829908.82,
+      "net_pnl": -510035.3,
+      "tax_ratio_of_gross": 0.1,
+      "delayed_exits": 0,
+      "exposure_days": 1294,
+      "exposure_ratio": 0.32685,
+      "open_positions": [],
+      "skipped": {
+        "rejected_yield": 637,
+        "executed": 34,
+        "captured": 34,
+        "rejected_trend": 49,
+        "skipped_overlap": 40,
+        "rejected_cap": 40
+      },
+      "buys_blocked": [],
+      "min_cash": 11726.97,
+      "benchmark": {
+        "name": "沪深300(价格指数,不含分红)",
+        "total_return": 0.168694,
+        "cagr": 0.014486,
+        "mdd": -0.456026
+      },
+      "yearly": [
+        {
+          "year": 2016,
+          "return": 0.15223,
+          "wealth_end": 3456690.05,
+          "equity_end": 3331223.93,
+          "cum_withdrawn": 125466.12,
+          "captures": 3
+        },
+        {
+          "year": 2017,
+          "return": 0.139756,
+          "wealth_end": 3939783.73,
+          "equity_end": 3784927.03,
+          "cum_withdrawn": 154856.7,
+          "captures": 1
+        },
+        {
+          "year": 2018,
+          "return": -0.046432,
+          "wealth_end": 3756852.67,
+          "equity_end": 3520589.9,
+          "cum_withdrawn": 236262.78,
+          "captures": 2
+        },
+        {
+          "year": 2019,
+          "return": -0.014741,
+          "wealth_end": 3701472.84,
+          "equity_end": 3364077.62,
+          "cum_withdrawn": 337395.22,
+          "captures": 3
+        },
+        {
+          "year": 2020,
+          "return": 0.064546,
+          "wealth_end": 3940387.27,
+          "equity_end": 3499640.92,
+          "cum_withdrawn": 440746.36,
+          "captures": 2
+        },
+        {
+          "year": 2021,
+          "return": 0.040125,
+          "wealth_end": 4098497.18,
+          "equity_end": 3452834.97,
+          "cum_withdrawn": 645662.21,
+          "captures": 4
+        },
+        {
+          "year": 2022,
+          "return": -0.038083,
+          "wealth_end": 3942415.66,
+          "equity_end": 3118370.44,
+          "cum_withdrawn": 824045.22,
+          "captures": 4
+        },
+        {
+          "year": 2023,
+          "return": 0.126904,
+          "wealth_end": 4442722.71,
+          "equity_end": 3501097.08,
+          "cum_withdrawn": 941625.63,
+          "captures": 4
+        },
+        {
+          "year": 2024,
+          "return": -0.033845,
+          "wealth_end": 4292358.09,
+          "equity_end": 3276719.58,
+          "cum_withdrawn": 1015638.51,
+          "captures": 3
+        },
+        {
+          "year": 2025,
+          "return": -0.055657,
+          "wealth_end": 4053459.11,
+          "equity_end": 2915487.21,
+          "cum_withdrawn": 1137971.91,
+          "captures": 5
+        },
+        {
+          "year": 2026,
+          "return": -0.086513,
+          "wealth_end": 3702782.78,
+          "equity_end": 2489964.71,
+          "cum_withdrawn": 1212818.07,
+          "captures": 3
+        }
+      ],
+      "candidate_stats": {
+        "out_of_window": 52,
+        "candidate_events": 800,
+        "rejected_yield": 637,
+        "rejected_trend": 49,
+        "rejected_no_entry_bar": 10,
+        "rejected_no_entry_or_exit": 19,
+        "rejected_cap": 40
+      },
+      "cap_mode": "estimated",
+      "cap_source_counts": {},
+      "shares_history_symbols": 0,
+      "eligible_candidates": 74,
+      "eligible_symbols": 23,
+      "exit_reason_counts": {
+        "max_hold": 34
+      },
+      "early_exits_le30d": 0,
+      "early_exit_tax": 0.0,
+      "early_exit_gross_div": 0.0,
+      "avg_holding_days_early": null,
+      "data_protection": {
+        "rule": "疑似数据错误 bar：非除权事件日 + 相邻bar间隔<=10自然日 + |单日收益|>30%；买入日/计划卖出日命中则跳过该笔，持仓估值与延迟卖出用最近可信价",
+        "anomaly_bars": 0,
+        "anomaly_symbols": 0,
+        "skipped_data_entry_bar": 0,
+        "skipped_data_exit_bar": 0,
+        "price_adjusted_trades": 0,
+        "resumption_gap_rule": "相邻bar间隔>30自然日的复牌跳变按真实价格处理，仅披露，不做修正"
+      },
+      "universe_count": 62,
+      "dataset_kind": "pool62"
+    },
+    "sub_2018": {
+      "label": "legacy_pool62_2018",
+      "start": "2018-01-02",
+      "end": "2026-11-06",
+      "years": 8.8433,
+      "params": {
+        "min_div_yield_ttm": 0.06,
+        "min_market_cap": 50000000000.0,
+        "entry_lead_trading_days": 5,
+        "hold_days_after_ex": 30,
+        "max_concurrent_positions": 1,
+        "trend_enabled": true,
+        "trend_mode": "nondown",
+        "tax_rates": [
+          0.2,
+          0.1,
+          0.0
+        ],
+        "withdraw_ratio": 0.3,
+        "withdraw_base": "net",
+        "lot_size": 100,
+        "cash_buffer": 0.005,
+        "cap_mode": "estimated",
+        "universe": "pool62",
+        "exit_policy": {
+          "type": "fixed_30d"
+        },
+        "rank_mode": "pure",
+        "score_cfg": null
+      },
+      "init_cash": 3000000.0,
+      "final_equity": 1974251.46,
+      "final_wealth": 2812759.1,
+      "total_return": -0.062414,
+      "nav_total_return": -0.341916,
+      "cagr": -0.007261,
+      "ann_vol": 0.132046,
+      "sharpe": 0.0085,
+      "mdd": -0.223387,
+      "mdd_peak_date": "2025-08-25",
+      "mdd_trough_date": "2026-05-26",
+      "calmar": -0.0325,
+      "captures": 30,
+      "captures_per_year": 3.392,
+      "win_rate": 0.4,
+      "avg_trade_return": -0.012299,
+      "avg_holding_days": 38.07,
+      "gross_dividend": 3105583.86,
+      "tax": 310558.39,
+      "withdrawn": 838507.64,
+      "costs": 131782.34,
+      "price_pnl": -2982266.34,
+      "dividend_pnl": 1956517.84,
+      "net_pnl": -1025748.51,
+      "tax_ratio_of_gross": 0.1,
+      "delayed_exits": 0,
+      "exposure_days": 1142,
+      "exposure_ratio": 0.35356,
+      "open_positions": [],
+      "skipped": {
+        "rejected_yield": 548,
+        "rejected_trend": 46,
+        "executed": 30,
+        "skipped_overlap": 37,
+        "captured": 30,
+        "rejected_cap": 39
+      },
+      "buys_blocked": [],
+      "min_cash": 9508.67,
+      "benchmark": {
+        "name": "沪深300(价格指数,不含分红)",
+        "total_return": -0.008103,
+        "cagr": -0.00092,
+        "mdd": -0.456026
+      },
+      "yearly": [
+        {
+          "year": 2018,
+          "return": -0.048327,
+          "wealth_end": 2855017.72,
+          "equity_end": 2790498.52,
+          "cum_withdrawn": 64519.2,
+          "captures": 2
+        },
+        {
+          "year": 2019,
+          "return": -0.015391,
+          "wealth_end": 2811075.87,
+          "equity_end": 2666394.75,
+          "cum_withdrawn": 144681.12,
+          "captures": 3
+        },
+        {
+          "year": 2020,
+          "return": 0.067366,
+          "wealth_end": 3000447.62,
+          "equity_end": 2773853.9,
+          "cum_withdrawn": 226593.72,
+          "captures": 2
+        },
+        {
+          "year": 2021,
+          "return": 0.041792,
+          "wealth_end": 3125843.6,
+          "equity_end": 2736814.48,
+          "cum_withdrawn": 389029.12,
+          "captures": 4
+        },
+        {
+          "year": 2022,
+          "return": -0.039518,
+          "wealth_end": 3002315.01,
+          "equity_end": 2471903.3,
+          "cum_withdrawn": 530411.71,
+          "captures": 4
+        },
+        {
+          "year": 2023,
+          "return": 0.132107,
+          "wealth_end": 3398942.86,
+          "equity_end": 2775350.64,
+          "cum_withdrawn": 623592.22,
+          "captures": 4
+        },
+        {
+          "year": 2024,
+          "return": -0.035066,
+          "wealth_end": 3279756.69,
+          "equity_end": 2597492.56,
+          "cum_withdrawn": 682264.13,
+          "captures": 3
+        },
+        {
+          "year": 2025,
+          "return": -0.057678,
+          "wealth_end": 3090588.11,
+          "equity_end": 2311382.46,
+          "cum_withdrawn": 779205.65,
+          "captures": 5
+        },
+        {
+          "year": 2026,
+          "return": -0.089895,
+          "wealth_end": 2812759.1,
+          "equity_end": 1974251.46,
+          "cum_withdrawn": 838507.64,
+          "captures": 3
+        }
+      ],
+      "candidate_stats": {
+        "out_of_window": 159,
+        "candidate_events": 700,
+        "rejected_trend": 46,
+        "rejected_yield": 548,
+        "rejected_no_entry_or_exit": 19,
+        "rejected_cap": 39,
+        "rejected_no_entry_bar": 3
+      },
+      "cap_mode": "estimated",
+      "cap_source_counts": {},
+      "shares_history_symbols": 0,
+      "eligible_candidates": 67,
+      "eligible_symbols": 22,
+      "exit_reason_counts": {
+        "max_hold": 30
+      },
+      "early_exits_le30d": 0,
+      "early_exit_tax": 0.0,
+      "early_exit_gross_div": 0.0,
+      "avg_holding_days_early": null,
+      "data_protection": {
+        "rule": "疑似数据错误 bar：非除权事件日 + 相邻bar间隔<=10自然日 + |单日收益|>30%；买入日/计划卖出日命中则跳过该笔，持仓估值与延迟卖出用最近可信价",
+        "anomaly_bars": 0,
+        "anomaly_symbols": 0,
+        "skipped_data_entry_bar": 0,
+        "skipped_data_exit_bar": 0,
+        "price_adjusted_trades": 0,
+        "resumption_gap_rule": "相邻bar间隔>30自然日的复牌跳变按真实价格处理，仅披露，不做修正"
+      },
+      "universe_count": 62,
+      "dataset_kind": "pool62"
+    }
+  }
+}

@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>dividend-alpha · 高股息动态监控</title>
+<style>
+:root{
+  --bg:#0B1220; --card:#131C2E; --card2:#101A2B; --line:#22304A;
+  --acc:#2DD4A7; --acc-dim:#1B7F66; --amber:#F5A524; --red:#EF6461;
+  --text:#E8EEF7; --muted:#8A9AB5; --dim:#5C6E8C;
+  --mono:"SF Mono","JetBrains Mono","Roboto Mono",Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  background-image:linear-gradient(rgba(45,212,167,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(45,212,167,.018) 1px,transparent 1px);
+  background-size:44px 44px}
+.app{display:grid;grid-template-columns:216px 1fr;min-height:100vh}
+/* ---------- sidebar ---------- */
+.sidebar{border-right:1px solid var(--line);background:rgba(11,18,32,.9);padding:20px 12px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column}
+.brand{display:flex;align-items:center;gap:10px;padding:4px 10px 22px;border-bottom:1px solid var(--line);margin-bottom:14px}
+.brand-mark{width:30px;height:30px;border:1.5px solid var(--acc);border-radius:7px;display:grid;place-items:center;color:var(--acc);font:bold 15px var(--mono)}
+.brand-name{font:600 15px var(--mono);letter-spacing:.2px}
+.brand-sub{font-size:10px;color:var(--dim);letter-spacing:.5px}
+.nav-group{font-size:10px;color:var(--dim);letter-spacing:1.4px;padding:14px 12px 6px}
+.nav a{display:flex;align-items:center;gap:11px;padding:10px 12px;margin:2px 0;border-radius:7px;color:var(--muted);
+  text-decoration:none;font-size:13px;cursor:pointer;border-left:2px solid transparent;transition:.15s}
+.nav a:hover{background:rgba(45,212,167,.06);color:var(--text)}
+.nav a.on{background:rgba(45,212,167,.10);color:var(--acc);border-left-color:var(--acc);font-weight:600}
+.nav .ic{width:16px;text-align:center;font-size:14px;opacity:.9}
+.side-foot{margin-top:auto;border-top:1px solid var(--line);padding:14px 12px 2px;font-size:10.5px;color:var(--dim);line-height:1.8}
+.side-foot .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--acc);margin-right:6px}
+/* ---------- main ---------- */
+main{min-width:0;padding:0 22px 34px}
+.topbar{display:flex;align-items:center;gap:22px;height:58px;border-bottom:1px solid var(--line);margin-bottom:20px;font-size:12px;color:var(--muted)}
+.topbar b{color:var(--text);font-weight:600}
+.topbar .sep{width:1px;height:16px;background:var(--line)}
+.topbar .right{margin-left:auto;display:flex;gap:18px;align-items:center}
+.pill{padding:3px 9px;border:1px solid var(--line);border-radius:20px;font:11px var(--mono);color:var(--muted)}
+.pill.ok{color:var(--acc);border-color:rgba(45,212,167,.35);background:rgba(45,212,167,.07)}
+.page{display:none}.page.on{display:block}
+h1{font-size:19px;font-weight:600;margin:0 0 4px}
+.sub{color:var(--muted);font-size:12px;margin-bottom:18px}
+.grid{display:grid;gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:9px;padding:16px}
+.card h2{font-size:13px;font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.card h2::before{content:"";width:3px;height:12px;background:var(--acc);border-radius:2px}
+.card h2 .tag{margin-left:auto;font:10px var(--mono);color:var(--dim);border:1px solid var(--line);padding:2px 7px;border-radius:4px}
+/* ---------- KPI ---------- */
+.kpis{grid-template-columns:repeat(6,1fr)}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:9px;padding:14px 15px;position:relative;overflow:hidden}
+.kpi::after{content:"";position:absolute;left:0;top:0;width:100%;height:2px;background:linear-gradient(90deg,var(--acc),transparent);opacity:.55}
+.kpi .lab{font-size:11px;color:var(--muted)}
+.kpi .val{font:600 24px/1.25 var(--mono);margin:7px 0 3px;letter-spacing:-.5px}
+.kpi .val.sm{font-size:21px}
+.kpi .note{font-size:10.5px;color:var(--dim)}
+.kpi .up{color:var(--acc)}.kpi .dn{color:var(--red)}.kpi .am{color:var(--amber)}
+.spark{height:22px;margin-top:6px;opacity:.75}
+/* ---------- chart ---------- */
+.chart-wrap{position:relative}
+#navSvg{width:100%;height:300px;display:block}
+.legend{display:flex;gap:18px;font-size:11px;color:var(--muted);margin:0 0 8px;flex-wrap:wrap}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px}
+.seg{display:flex;gap:5px;margin-left:auto}
+.seg button{background:transparent;border:1px solid var(--line);color:var(--muted);font-size:11px;padding:4px 10px;border-radius:5px;cursor:pointer}
+.seg button.on{color:var(--acc);border-color:rgba(45,212,167,.4);background:rgba(45,212,167,.08)}
+.tip{position:absolute;pointer-events:none;background:#0A1424;border:1px solid var(--acc-dim);border-radius:6px;
+  padding:9px 11px;font:11px/1.7 var(--mono);color:var(--text);display:none;z-index:9;box-shadow:0 8px 24px #0008;min-width:150px}
+.tip b{color:var(--acc)}
+/* ---------- table ---------- */
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{text-align:left;color:var(--dim);font-weight:500;font-size:10.5px;letter-spacing:.4px;padding:8px 9px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:8px 9px;border-bottom:1px solid rgba(34,48,74,.55);color:var(--muted);white-space:nowrap}
+tr:last-child td{border-bottom:none}
+tbody tr:nth-child(even){background:rgba(255,255,255,.015)}
+tbody tr:hover{background:rgba(45,212,167,.055)}
+td.num{font-family:var(--mono);color:var(--text);text-align:right}
+td.name{color:var(--text);font-weight:500}
+.pos{color:var(--acc)}.neg{color:var(--red)}.amb{color:var(--amber)}
+.badge{display:inline-block;font-size:10px;padding:2px 7px;border-radius:4px;border:1px solid}
+.badge.g{color:var(--acc);border-color:rgba(45,212,167,.3);background:rgba(45,212,167,.08)}
+.badge.r{color:var(--red);border-color:rgba(239,100,97,.3);background:rgba(239,100,97,.08)}
+.badge.a{color:var(--amber);border-color:rgba(245,165,36,.3);background:rgba(245,165,36,.08)}
+.badge.d{color:var(--dim);border-color:var(--line)}
+/* ---------- misc ---------- */
+.two{grid-template-columns:2fr 1fr}.two-eq{grid-template-columns:1fr 1fr}
+.three{grid-template-columns:1.55fr 1fr}
+.row{display:flex;gap:14px;align-items:flex-start}
+.note{font-size:10.5px;color:var(--dim);line-height:1.7;margin-top:10px}
+.callout{background:rgba(245,165,36,.06);border:1px solid rgba(245,165,36,.25);border-left:3px solid var(--amber);
+  border-radius:6px;padding:11px 13px;font-size:11.5px;color:#D8C39A;line-height:1.7}
+.callout.g{background:rgba(45,212,167,.055);border-color:rgba(45,212,167,.25);border-left-color:var(--acc);color:#A8D8C8}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:7px 14px;font-size:11.5px}
+.kv dt{color:var(--dim)}.kv dd{font-family:var(--mono);color:var(--text)}
+.bar-row{display:flex;align-items:center;gap:10px;margin:9px 0;font-size:11.5px}
+.bar-row .n{width:120px;color:var(--muted);flex:none}
+.bar-row .track{flex:1;height:15px;background:rgba(255,255,255,.035);border-radius:3px;position:relative;overflow:hidden}
+.bar-row .fill{display:block;height:100%;border-radius:3px}
+.bar-row .v{width:58px;text-align:right;font-family:var(--mono);color:var(--text);flex:none}
+pre{font:11px/1.75 var(--mono);color:#A9C4DE;background:#0A1424;border:1px solid var(--line);border-radius:7px;padding:14px;overflow:auto}
+.footer{margin-top:22px;border-top:1px solid var(--line);padding-top:12px;font-size:10.5px;color:var(--dim);display:flex;gap:20px}
+.mini-stat{display:flex;gap:10px;align-items:baseline;margin-bottom:6px}
+.mini-stat .v{font:600 19px var(--mono)}.mini-stat .l{font-size:11px;color:var(--muted)}
+
+/* ---------- v3.1 additions ---------- */
+.archive-banner{background:rgba(245,165,36,.10);border:1px solid rgba(245,165,36,.4);
+  border-left:4px solid var(--amber);border-radius:7px;padding:13px 16px;margin-bottom:16px;
+  font-size:12px;line-height:1.8;color:#E8CFA0}
+.archive-banner b{color:var(--amber)}
+.forward-note{background:rgba(45,212,167,.055);border:1px solid rgba(45,212,167,.25);
+  border-left:3px solid var(--acc);border-radius:6px;padding:10px 13px;margin-bottom:16px;
+  font-size:11.5px;color:#A8D8C8;line-height:1.7}
+.prog{display:flex;align-items:center;gap:12px;margin:12px 0;font-size:12px}
+.prog .lab{width:150px;color:var(--muted);flex:none}
+.prog .track{flex:1;height:15px;background:rgba(255,255,255,.04);border-radius:3px;overflow:hidden;position:relative}
+.prog .fill{display:block;height:100%;border-radius:3px;background:var(--acc);opacity:.82}
+.prog .fill.zero{background:var(--dim);opacity:.5}
+.prog .v{width:120px;text-align:right;font:11px var(--mono);color:var(--text);flex:none}
+.seg button:disabled{opacity:.45;cursor:not-allowed;border-color:var(--line)}
+.locked-card{background:rgba(245,165,36,.06);border:1px dashed rgba(245,165,36,.45);
+  border-radius:7px;padding:22px;text-align:center;color:#D8C39A;font-size:12px;line-height:2}
+.locked-card b{color:var(--amber);font:600 17px var(--mono)}
+.linkbtn{background:none;border:none;color:var(--acc);cursor:pointer;font-size:11.5px;
+  text-decoration:underline;padding:0 3px}
+.tag.arc{color:var(--amber);border-color:rgba(245,165,36,.4);background:rgba(245,165,36,.08)}
+.arch-kpi{grid-template-columns:repeat(5,1fr)}
+.arch-kpi .kpi::after{background:linear-gradient(90deg,var(--amber),transparent)}
+
+@media(max-width:1200px){.kpis{grid-template-columns:repeat(3,1fr)}.two,.three,.two-eq{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="brand">
+    <div class="brand-mark">α</div>
+    <div><div class="brand-name">dividend-alpha</div><div class="brand-sub">高股息动态监控系统</div></div>
+  </div>
+  <div class="nav-group">监控</div>
+  <nav class="nav" id="nav">
+    <a data-page="overview" class="on"><span class="ic">◫</span>总览</a>
+    <a data-page="positions"><span class="ic">▤</span>持仓</a>
+    <a data-page="signals"><span class="ic">⌁</span>信号</a>
+    <div class="nav-group">验证</div>
+    <a data-page="attribution"><span class="ic">◧</span>归因</a>
+    <a data-page="benchmarks"><span class="ic">◎</span>基准对比</a>
+    <a data-page="withdraw"><span class="ic">↧</span>取现流水</a>
+    <div class="nav-group">系统</div>
+    <a data-page="config"><span class="ic">⚙</span>配置</a>
+    <div class="nav-group">归档</div>
+    <a data-page="archive"><span class="ic">▣</span>历史归档 <span style="margin-left:auto;font:9px var(--mono);color:var(--amber)">只读</span></a>
+  </nav>
+  <div class="side-foot">
+    <div><span class="dot"></span>盘后任务 已完成</div>
+    <div>数据日期 2026-11-05</div>
+    <div>Forward-only · v3.1</div>
+  </div>
+</aside>
+
+<main>
+  <div class="topbar">
+    <span>数据日期 <b>2026-11-05</b></span><span class="sep"></span>
+    <span>运行模式 <b>Forward-only</b></span><span class="sep"></span>
+    <span>运行天数 <b>D+1</b></span><span class="sep"></span>
+    <span>本金 <b>¥3,000,000</b></span>
+    <div class="right">
+      <span class="pill ok">● 盘后任务已完成</span>
+      <span class="pill">A股 · 日线</span>
+      <span class="pill">模拟盘</span>
+    </div>
+  </div>
+
+  <!-- ============ 总览 ============ -->
+  <section class="page on" id="p-overview">
+    <h1>策略总览</h1>
+    <div class="sub">S* 锁定配置 · 高股息持有 + 年度取现 + 全池超跌增强（实验性）</div>
+
+    <div class="forward-note">🆕 生产系统自 <b>2026-11-05</b> 起 <b>Forward-only</b> 运行，只向前记录、不复现历史。
+      2015-2026 回测数字是<b>历史样本里的一个数</b>，已集中到
+      <button class="linkbtn" onclick="go('archive')">历史归档（只读）</button>。
+      下方 KPI 为<b>历史研究基线</b>参照，前瞻运行进度见右侧卡片。</div>
+
+    <div class="grid" style="grid-template-columns:2.2fr 1fr;margin-bottom:14px">
+      <div class="card">
+        <h2>前瞻运行进度 <span class="tag">实时 · 来自 daily_nav</span></h2>
+        <div id="progOverview"></div>
+        <div class="note">年化超额在样本 &lt;3 年时不展示；B1–B6 六条基准与信号配对样本从第一天起并行记录。</div>
+      </div>
+      <div class="card">
+        <h2>账户状态 <span class="tag">实时</span></h2>
+        <dl class="kv">
+          <dt>总资产</dt><dd>¥3,000,000</dd>
+          <dt>可用现金</dt><dd>¥300,000</dd>
+          <dt>持仓市值</dt><dd>¥2,700,000</dd>
+          <dt>当日盈亏</dt><dd>+0.00%</dd>
+          <dt>持仓只数</dt><dd>0 / 10（待建仓）</dd>
+          <dt>数据源健康</dt><dd><span class="badge a">4 源待实测</span></dd>
+        </dl>
+      </div>
+    </div>
+
+    <h2 style="font-size:12px;color:var(--muted);font-weight:500;margin:16px 0 10px">
+      实时账户指标 <span class="tag">实时 · 来自账本</span>
+      <button class="linkbtn" style="margin-left:10px" onclick="go('archive')">历史回测存档 →</button></h2>
+    <div class="grid kpis" id="kpis"></div>
+
+    <div class="grid three" style="margin-top:14px">
+      <div class="card">
+        <h2>历史净值曲线 · S* vs 基准 <span class="tag arc">归档 · 2015-01 ~ 2026-10</span></h2>
+        <div class="legend">
+          <span><i style="background:var(--acc)"></i>S* 策略</span>
+          <span><i style="background:#7C9CC4"></i>B2 纯持有（关增强层）</span>
+          <span><i style="background:var(--amber)"></i>沪深300 价格指数</span>
+          <span class="seg" id="navSeg"><button data-r="all" class="on">全期</button><button data-r="3y">近3年</button><button data-r="oos">样本外</button></span>
+        </div>
+        <div class="chart-wrap"><div id="navSvg"></div><div class="tip" id="tip"></div></div>
+        <div class="note">真实回测净值（含佣金 / 印花税 / 滑点 / 红利税 / 逆回购利息）；沪深300 为价格指数，未含分红，仅作参照。鼠标悬停查看逐月数值。</div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:14px">
+          <h2>今日信号 <span class="tag">演示数据</span></h2>
+          <table><thead><tr><th>标的</th><th>触发</th><th>强度</th><th>状态</th></tr></thead><tbody>
+            <tr><td class="name">五粮液</td><td>跌12% + RSI 23</td><td class="num pos">0.82</td><td><span class="badge g">待执行</span></td></tr>
+            <tr><td class="name">海尔智家</td><td>跌14% + RSI 21</td><td class="num pos">0.91</td><td><span class="badge g">待执行</span></td></tr>
+            <tr><td class="name">伊利股份</td><td>跌12% + RSI 26</td><td class="num amb">0.61</td><td><span class="badge d">成本闸拦截</span></td></tr>
+            <tr><td class="name">中国神华</td><td>跌18% + RSI 19</td><td class="num pos">0.77</td><td><span class="badge a">冷静期</span></td></tr>
+          </tbody></table>
+          <div class="callout" style="margin-top:12px">增强层标记 <b>experimental</b>。
+            <span style="color:var(--dim)">（历史样本：B6 分位 75%，组合层不显著）</span>
+            <button class="linkbtn" onclick="go('archive')">归档 →</button></div>
+        </div>
+        <div class="card">
+          <h2>持仓概览 <span class="tag">10 只 · 演示</span></h2>
+          <table><thead><tr><th>名称</th><th>行业</th><th>股息率</th><th>浮盈</th></tr></thead><tbody>
+            <tr><td class="name">五粮液</td><td>食品饮料</td><td class="num">6.90%</td><td class="num pos">+12.4%</td></tr>
+            <tr><td class="name">宝钢股份</td><td>钢铁</td><td class="num">6.80%</td><td class="num pos">+8.1%</td></tr>
+            <tr><td class="name">中国神华</td><td>煤炭</td><td class="num">5.75%</td><td class="num neg">−3.2%</td></tr>
+            <tr><td class="name">海尔智家</td><td>家用电器</td><td class="num">5.60%</td><td class="num pos">+5.7%</td></tr>
+            <tr><td class="name">招商银行</td><td>股份制银行</td><td class="num">4.63%</td><td class="num pos">+42.1%</td></tr>
+          </tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid two-eq" style="margin-top:14px">
+      <div class="card">
+        <h2>历史模块贡献 <span class="tag arc">归档 · 反事实开关法 %/年</span></h2>
+        <div id="modBars"></div>
+        <div class="note">口径来自 REPORT10；年度取现方案下数值略有差异。分红再投是绝对主体，交易性增强很小。</div>
+      </div>
+      <div class="card">
+        <h2>历史取现流水 <span class="tag arc">归档 · 最近 5 年</span></h2>
+        <table><thead><tr><th>年份</th><th>当年分红</th><th>应取30%</th><th>实取</th><th>兑现率</th></tr></thead><tbody id="wdMini"></tbody></table>
+        <div class="note">默认 <b>cash_only</b>：年底现金不足时不足不补，累计兑现 83.8%。切换 <b>sell_to_cover</b> 可 100% 兑现，年化仅差 0.04%。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 持仓 ============ -->
+  <section class="page" id="p-positions">
+    <h1>核心持仓</h1>
+    <div class="sub">N=10 等权 · 同 L1 行业 ≤1 · 银行按 国有/股份/城商/农商 细分且每子类 ≤2</div>
+    <div class="grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:14px" id="posStats"></div>
+    <div class="grid two">
+      <div class="card">
+        <h2>持仓明细 <span class="tag">演示数据 · 实盘由 P4 数据管道生成</span></h2>
+        <table><thead><tr><th>代码</th><th>名称</th><th>行业</th><th>股息率</th><th>持仓市值</th><th>浮盈</th><th>持有月数</th><th>状态</th></tr></thead>
+        <tbody id="posTable"></tbody></table>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:14px">
+          <h2>行业分散 <span class="tag">10 只 · 9 类 L1</span></h2>
+          <div class="row" style="align-items:center;justify-content:center;gap:28px">
+            <div id="donut"></div>
+            <div id="donutLegend" style="font-size:11px;line-height:2;color:var(--muted)"></div>
+          </div>
+        </div>
+        <div class="card">
+          <h2>卖出规则</h2>
+          <dl class="kv">
+            <dt>硬规则</dt><dd>股息率&lt;1.5% / 分红中断 / 满 5 年</dd>
+            <dt>超涨</dt><dd>相对成本浮盈 ≥ 50% → 一次性清仓</dd>
+            <dt>禁止</dt><dd>轮动 / 条件换仓 / 强制换仓 / 分批挪仓</dd>
+            <dt>选股排序</dt><dd>股息率 TTM 绝对值降序</dd>
+            <dt>再平衡</dt><dd>月频，仅补仓到 N</dd>
+          </dl>
+          <div class="callout" style="margin-top:12px">「涨了就换」已四次证伪：换出越主动，结果越差。<b>换入按分位排序会跌到 3.21%</b>（按股息率则 9.76%）。</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 信号 ============ -->
+  <section class="page" id="p-signals">
+    <h1>信号与执行</h1>
+    <div class="sub">超跌反弹增强层 · 全合格池扫描（T+1 不约束 30 日持仓）· 标记为实验性</div>
+    <div class="grid two">
+      <div class="card">
+        <h2>信号流水 <span class="tag">演示数据 · 价格口径：前复权 ADJ</span></h2>
+        <table><thead><tr><th>日期</th><th>标的</th><th>20日跌幅</th><th>RSI(14)</th><th>强度</th><th>预期净收益</th><th>成本闸</th></tr></thead>
+        <tbody id="sigTable"></tbody></table>
+        <div class="note">★ 20日跌幅与 RSI(14) 均基于<b>前复权价</b>；股息率 TTM 基于<b>不复权价</b>，两列并存。成本闸：expected_net ≥ 0.8% 且 ≥ 3×往返成本；资金约束 amt+cost ≤ cash×0.98。</div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:14px">
+          <h2>信号参数 <span class="tag">已锁定</span></h2>
+          <pre>trigger:
+  kind: combo
+  lookback_days: 20
+  drop_threshold: 0.12   # 20日跌≥12%
+  rsi_period: 14
+  rsi_threshold: 25      # RSI(14)&lt;25
+holding_days: 30
+scope: POOL_WIDE         # 全合格池
+max_concurrent: 12
+position_per_trade: 0.03 # 机动仓≈30%
+rank_by_strength: true
+cooldown_days: 5</pre>
+        </div>
+        <div class="card">
+          <h2>实证状态 <span class="tag arc">历史样本</span></h2>
+          <div class="callout">因子级：净超额 <b>+3.09%</b>，t=11.28，胜率 60.1%（2,026 样本）。<br>
+          组合层：B6 配对安慰剂 10.43%±1.03%，真实 11.15%，<b>分位 75%、z=0.69，不显著</b>。<br>
+          年度取现方案下做T贡献仅 <b>+0.11%/年</b>。</div>
+          <div class="note">收益分解：择时（暴跌日买入）+2.21%，选股（挑哪只）+1.18%。交易层显著但组合层被核心仓噪声淹没，实盘需继续积累 300+ 笔配对样本。</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 归因 ============ -->
+  <section class="page" id="p-attribution">
+    <h1>收益归因</h1>
+    <div class="sub">前瞻归因 · 账本自 2026-11-05 起积累；历史归因见
+      <button class="linkbtn" onclick="go('archive')">历史归档（只读）</button></div>
+    <div class="grid two-eq">
+      <div class="card">
+        <h2>模块贡献 <span class="tag">待积累 · 前瞻</span></h2>
+        <div id="modBars2"></div>
+      </div>
+      <div class="card">
+        <h2>现金流拆解 <span class="tag">实时账本</span></h2>
+        <table><thead><tr><th>项目</th><th>累计</th><th>占本金</th><th>说明</th></tr></thead><tbody>
+          <tr><td class="name">现金分红（税前）</td><td class="num">¥0</td><td class="num">0.00%</td><td>待首笔到账</td></tr>
+          <tr><td>核心仓已实现盈亏</td><td class="num">¥0</td><td class="num">0.00%</td><td>无卖出</td></tr>
+          <tr><td>做T已实现盈亏</td><td class="num">¥0</td><td class="num">0.00%</td><td>无成交</td></tr>
+          <tr><td>交易成本</td><td class="num">¥0</td><td class="num">0.00%</td><td>佣金/印花/滑点</td></tr>
+          <tr><td>红利税</td><td class="num">¥0</td><td class="num">0.00%</td><td>FIFO 批次</td></tr>
+          <tr><td>逆回购利息</td><td class="num">¥0</td><td class="num">0.00%</td><td>闲置现金</td></tr>
+        </tbody></table>
+        <div class="callout g" style="margin-top:12px">历史样本中<b>分红是绝对主体</b>（累计相当于本金 90.5%）；
+          本页从 D+1 起重新积累，<button class="linkbtn" onclick="go('archive')">查看历史归因</button>。</div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:14px">
+      <h2>分年度收益 <span class="tag">待积累 · 前瞻</span></h2>
+      <div class="locked-card" style="padding:26px">
+        运行仅 <b>D+1</b>，尚无可展示的年度收益。<br>
+        样本 &lt;3 年时不计算年化；历史分年度数据见
+        <button class="linkbtn" onclick="go('archive')">历史归档</button>
+        <div style="margin-top:12px"><span class="prog"><span class="lab">运行天数</span>
+          <span class="track"><span class="fill zero" style="width:1%"></span></span>
+          <span class="v">1 / 1095 天</span></span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 基准 ============ -->
+  <section class="page" id="p-benchmarks">
+    <h1>多基准对比与证伪</h1>
+    <div class="sub">持续回答一个问题：我这套操作，到底有没有真的多赚钱</div>
+
+    <div class="card" style="margin-bottom:14px">
+      <h2>验证视图 <span class="tag">样本守门 · 可切换</span>
+        <span class="seg" style="margin-left:auto">
+          <button data-bm="progress" class="on">前瞻进度</button>
+          <button data-bm="annual">年化超额 🔒</button>
+        </span>
+      </h2>
+      <div id="bmPane"></div>
+    </div>
+
+    <div class="grid two">
+      <div class="card">
+        <h2>基准体系 <span class="tag">B1–B6 · 前瞻并行</span></h2>
+        <table><thead><tr><th>基准</th><th>定义</th><th>当日净值</th><th>状态</th></tr></thead><tbody>
+          <tr><td class="name">S*</td><td>策略持仓（本系统）</td><td class="num">3,000,000</td><td><span class="badge g">运行中</span></td></tr>
+          <tr><td>B1</td><td>集中持仓 · 股息率 Top10 无约束</td><td class="num">3,000,000</td><td><span class="badge g">启用</span></td></tr>
+          <tr><td>B2</td><td>分散持仓 · 同漏斗不动（★最关键）</td><td class="num">3,000,000</td><td><span class="badge g">启用</span></td></tr>
+          <tr><td>B3</td><td>红利指数 / 红利ETF</td><td class="num">3,000,000</td><td><span class="badge a">估算</span></td></tr>
+          <tr><td>B4</td><td>沪深300</td><td class="num">3,000,000</td><td><span class="badge a">估算</span></td></tr>
+          <tr><td>B5</td><td>零成本克隆（同 S*，成本=0）</td><td class="num">3,000,000</td><td><span class="badge g">启用</span></td></tr>
+          <tr><td>B6</td><td>随机交易安慰剂（配对）</td><td class="num">0 / 300 笔</td><td><span class="badge d">积累中</span></td></tr>
+        </tbody></table>
+        <div class="callout" style="margin-top:12px"><b>判定树</b>：S*−B2 &gt; 成本 <b>且</b> 显著 &gt; B6（p&lt;0.05，样本≥300）才算有效。
+          历史样本中该判据<b>未通过</b>（分位 75%），故增强层标记 experimental →
+          <button class="linkbtn" onclick="go('archive')">查看历史结论</button></div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:14px">
+          <h2>年化超额 <span class="tag">样本守门 · 暂不展示</span></h2>
+          <div class="callout">生产运行仅 <b>D+1</b>，样本 &lt;3 年时<b>不计算、不渲染</b>年化超额字段
+          （后端 SampleGuard 同步拦截）。<br>2015-2026 历史超额数字已归入
+          <button class="linkbtn" onclick="go('archive')">历史归档</button>，且标注为估算口径。</div>
+          <div class="note">⚠️ 用价格指数对比会虚高 2.5-4 个点；精确全收益指数 H00300/H00922 尚未接入，
+            从今天起自行累积即可。</div>
+        </div>
+        <div class="card">
+          <h2>B6 配对安慰剂 <span class="tag arc">归档 · 历史 12 次模拟</span></h2>
+          <div id="placebo"></div>
+          <div class="note">真实信号 11.15% vs 安慰剂 10.43%±1.03%，分位 75%、z=0.69 → <b>与随机无异</b>。这是增强层标记 experimental 的原因。</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 取现 ============ -->
+  <section class="page" id="p-withdraw">
+    <h1>年度取现</h1>
+    <div class="sub">年内 100% 全额再投 · 每年 12 月最后交易日取当年税前现金分红 × 30%</div>
+    <div class="grid three">
+      <div class="card">
+        <h2>逐年流水 <span class="tag arc">归档 · 元</span> <button class="linkbtn" style="margin-left:auto" onclick="go('archive')">完整存档 →</button></h2>
+        <table><thead><tr><th>年份</th><th>当年分红</th><th>应取 30%</th><th>实取</th><th>兑现率</th></tr></thead><tbody id="wdTable"></tbody></table>
+        <div class="note">2026 数据止于 10 月，尚未到年底，该年不取（符合「每年年底取一次」语义）。</div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:14px">
+          <h2>规则定义</h2>
+          <pre>dividend_withdraw:
+  mode: annual
+  timing: last_trading_day_of_December
+  base: ytd_cash_dividend_gross
+  ratio: 0.30
+  shortfall_policy: cash_only
+  idempotency_key: (year, account_id)
+  skip_incomplete_year: true</pre>
+          <div class="note">幂等要求：重复调度不得重复取现，必须写 execution_log。这是生产事故高发点。</div>
+        </div>
+        <div class="card">
+          <h2>当年取现进度 <span class="tag">实时账本</span></h2>
+          <dl class="kv">
+            <dt>当年累计税前分红</dt><dd>¥0（D+1）</dd>
+            <dt>应取 30%</dt><dd>¥0</dd>
+            <dt>距 12 月最后交易日</dt><dd>56 天</dd>
+            <dt>幂等键</dt><dd>(2026, default)</dd>
+            <dt>状态</dt><dd><span class="badge d">待执行</span></dd>
+          </dl>
+          <div class="callout g" style="margin-top:12px">历史方案对比（不取现 / 每笔取 / 年底取 / 卖股补足 / 年内预留）已归入
+            <button class="linkbtn" onclick="go('archive')">历史归档</button>，标注为<b>历史样本</b>，不作为前瞻收益依据。</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 配置 ============ -->
+  <section class="page" id="p-config">
+    <h1>系统配置</h1>
+    <div class="sub">唯一真值：docs/00_INDEX.md → config/strategy.yaml · 修改需重跑 make test
+      （历史基线校验值见 <button class="linkbtn" onclick="go('archive')">归档</button>）</div>
+    <div class="grid two-eq">
+      <div class="card">
+        <h2>策略参数</h2>
+        <pre>universe:     连续分红≥5年 · 市值≥300亿 · 股息率≥2.5%
+portfolio:     N=10 等权 · core_ratio 0.90
+               L1≤1 · 银行子类≤2
+selection:     股息率 TTM 绝对值降序
+sell_rules:    硬规则 + 浮盈≥50% 清仓
+rotation:      false  # 已永久关闭
+dividend:      年内 ratio 1.00 → 年底取 0.30
+overlay:       POOL_WIDE · 跌12%+RSI&lt;25 · 30日
+               12×3% · experimental: true
+cost_model:    佣金0.025%(min5) 印花0.05%
+               滑点0.10% · 逆回购2%</pre>
+      </div>
+      <div class="card">
+        <h2>已知限制（不隐藏）</h2>
+        <table><thead><tr><th>#</th><th>限制</th></tr></thead><tbody>
+          <tr><td class="num">1</td><td>最大回撤 −42.5%，年度胜率低，超额集中在波动年份</td></tr>
+          <tr><td class="num">2</td><td>取现兑现率 83.8%（cash_only 默认）</td></tr>
+          <tr><td class="num">3</td><td>精确全收益指数缺失，超额为估算</td></tr>
+          <tr><td class="num">4</td><td>幸存者偏差 0.1–0.5%/年，未完全消除</td></tr>
+          <tr><td class="num">5</td><td>2015-2018 市值依赖股本事件流推算（一致率 98%+）</td></tr>
+          <tr><td class="num">6</td><td>策略容量有限，千万级资金收益会衰减</td></tr>
+          <tr><td class="num">7</td><td>B6 未通过，增强层统计不显著</td></tr>
+          <tr><td class="num">8</td><td>生产数据管道尚未跑通（P4.1 第一优先级）</td></tr>
+          <tr><td class="num">9</td><td>AKShare 1.20.35 具体接口名待 T00 用 <code>ak.search()</code> 核实</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+    <div class="card" style="margin-top:14px">
+      <h2>数据源状态 <span class="tag">v3.1 · 主 + 备 + 2 兜底</span></h2>
+      <table><thead><tr><th>源</th><th>角色</th><th>凭据</th><th>状态</th><th>备注</th></tr></thead><tbody>
+        <tr><td class="name">同花顺 fuyao</td><td>① 主源</td><td>THS_API_KEY</td><td><span class="badge a">待白名单</span></td><td>HTTP 状态码 + 信封 code 双重检查；429 / code=4001 退避且暂不切源</td></tr>
+        <tr><td class="name">AKShare 1.20.35</td><td>② 备源</td><td>无需</td><td><span class="badge a">待接口核实</span></td><td>接口名由 <code>ak.search()</code> 实测回填；交易日历 / 股票状态 / 60min 由其主责</td></tr>
+        <tr><td class="name">baostock</td><td>③ 串行兜底</td><td>无需</td><td><span class="badge a">待实测</span></td><td>并发必须 =1；仅在前两源失败时启用，会拖慢盘后任务</td></tr>
+        <tr><td class="name">东财 push2his</td><td>④ 最后兜底</td><td>无需</td><td><span class="badge a">待实测</span></td><td>已知可能 502；不得作主源；T00 记录 502 复现情况</td></tr>
+      </tbody></table>
+      <div class="note">仅 tushare / TUSHARE_TOKEN 已移除；baostock 与东财为保留兜底，缺失即回归缺陷。</div>
+    </div>
+  </section>
+
+
+  <!-- ============ 历史归档 P8 🆕 ============ -->
+  <section class="page" id="p-archive">
+    <div class="archive-banner">
+      ⚠️ 以下数字来自 <b>2015-01 ~ 2026-10 历史样本</b>，<b>不是已验证的将来收益</b>；
+      生产系统自 <b>2026-11-05</b> 起 <b>Forward-only</b> 运行，只向前记录、不复现历史。<br>
+      <span style="font-size:11px">历史年化 10.61% 内含 2015 股灾与 2021/2024 危机 alpha；增强层年度胜率仅 3/12，前 2–3 年可能颗粒无收。</span>
+    </div>
+    <h1>历史回测归档 <span class="tag arc" style="vertical-align:middle;margin-left:8px">只读 / 归档快照</span></h1>
+    <div class="sub">研究存档 · 不代表前瞻业绩 · 数据源 web/data.json（只读）</div>
+
+    <div class="grid arch-kpi" id="archKpis"></div>
+
+    <div class="grid three" style="margin-top:14px">
+      <div class="card">
+        <h2>历史净值曲线 <span class="tag arc">2015-01 ~ 2026-10</span></h2>
+        <div class="legend">
+          <span><i style="background:var(--acc)"></i>S* 策略</span>
+          <span><i style="background:#7C9CC4"></i>B2 纯持有</span>
+          <span><i style="background:var(--amber)"></i>沪深300 价格指数</span>
+          <span class="seg" id="arcSeg"><button data-r="all" class="on">全期</button><button data-r="3y">近3年</button><button data-r="oos">样本外</button></span>
+        </div>
+        <div class="chart-wrap"><div id="arcSvg"></div><div class="tip" id="arcTip"></div></div>
+        <div class="note">历史回测净值，含佣金 / 印花税 / 滑点 / 红利税 / 逆回购利息。沪深300 为价格指数，未含分红。</div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:14px">
+          <h2>10 轮实证结论摘要 <span class="tag arc">归档</span></h2>
+          <table><tbody>
+            <tr><td>①</td><td>股息率分位轮动</td><td><span class="badge r">证伪</span></td></tr>
+            <tr><td>②</td><td>增强层 B6 安慰剂</td><td><span class="badge r">不显著</span></td></tr>
+            <tr><td>③</td><td>分红是收益主体</td><td><span class="badge g">证实</span></td></tr>
+            <tr><td>④</td><td>年底取现优于每笔取</td><td><span class="badge g">证实</span></td></tr>
+            <tr><td>⑤</td><td>15% 目标下修至 10.61%</td><td><span class="badge a">修正</span></td></tr>
+            <tr><td>⑥</td><td>行业约束 L1≤1</td><td><span class="badge g">+1.81%</span></td></tr>
+          </tbody></table>
+        </div>
+        <div class="card">
+          <h2>报告索引 <span class="tag arc">REPORT1 ~ 11</span></h2>
+          <table><thead><tr><th>#</th><th>主题</th></tr></thead><tbody>
+            <tr><td class="num">1–2</td><td>轮动因子检验 / 超跌反弹定义</td></tr>
+            <tr><td class="num">3–5</td><td>组合级回测 / 归因 / 2015 起扩展</td></tr>
+            <tr><td class="num">6–7</td><td>定向挪仓证伪 / 锁定配置</td></tr>
+            <tr><td class="num">8–9</td><td>机动换仓 / 条件换仓证伪</td></tr>
+            <tr><td class="num">10</td><td>收益归因与超额口径</td></tr>
+            <tr><td class="num">11</td><td>年度取现最终决策</td></tr>
+          </tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid two-eq" style="margin-top:14px">
+      <div class="card"><h2>历史模块贡献 <span class="tag arc">%/年</span></h2><div id="modBars3"></div></div>
+      <div class="card"><h2>历史分年度 S* vs B2 <span class="tag arc">%</span></h2><div id="yearChart2"></div></div>
+    </div>
+    <div class="card" style="margin-top:14px">
+      <h2>历史取现方案对比 <span class="tag arc">归档 · 年化</span></h2>
+      <table><thead><tr><th>方案</th><th>年化</th><th>样本外</th><th>兑现率</th></tr></thead><tbody>
+        <tr><td>不取现</td><td class="num pos">11.15%</td><td class="num">17.47%</td><td class="num">—</td></tr>
+        <tr><td>每笔即时取 30%（旧）</td><td class="num">10.10%</td><td class="num">15.12%</td><td class="num">100%</td></tr>
+        <tr><td class="name">★ 年底取 · 只取现金</td><td class="num pos">10.61%</td><td class="num pos">15.61%</td><td class="num amb">83.8%</td></tr>
+        <tr><td>年底取 · 卖股补足</td><td class="num">10.57%</td><td class="num">15.42%</td><td class="num pos">100%</td></tr>
+        <tr><td>年内预留（已证伪）</td><td class="num neg">9.32%</td><td class="num">15.13%</td><td class="num">82.4%</td></tr>
+      </tbody></table>
+    </div>
+    <div class="card" style="margin-top:14px">
+      <h2>历史逐年取现流水 <span class="tag arc">归档 · 元</span></h2>
+      <table><thead><tr><th>年份</th><th>当年分红</th><th>应取 30%</th><th>实取</th><th>兑现率</th></tr></thead><tbody id="wdTable2"></tbody></table>
+      <div class="note">2026 数据止于 10 月，尚未到年底，该年不取（符合「每年年底取一次」语义）。</div>
+    </div>
+    <div class="note" style="margin-top:14px">研究脚本与缓存归档于 <code>research/</code> 与 <code>docs/legacy/reports/</code>，<b>不进生产镜像、不可写</b>。</div>
+  </section>
+
+  <div class="footer">
+    <span>dividend-alpha v3.1 · Forward-only · 待开发版</span>
+    <span>历史回测数字仅存于 P8「历史归档」；持仓 / 信号流水为演示数据</span>
+    <span>唯一权威规格：docs/00_INDEX.md → docs/05_DEVELOPMENT.md</span>
+  </div>
+</main>
+</div>
+
+<script>
+const D={"months":["2015-01","2015-02","2015-03","2015-04","2015-05","2015-06","2015-07","2015-08","2015-09","2015-10","2015-11","2015-12","2016-01","2016-02","2016-03","2016-04","2016-05","2016-06","2016-07","2016-08","2016-09","2016-10","2016-11","2016-12","2017-01","2017-02","2017-03","2017-04","2017-05","2017-06","2017-07","2017-08","2017-09","2017-10","2017-11","2017-12","2018-01","2018-02","2018-03","2018-04","2018-05","2018-06","2018-07","2018-08","2018-09","2018-10","2018-11","2018-12","2019-01","2019-02","2019-03","2019-04","2019-05","2019-06","2019-07","2019-08","2019-09","2019-10","2019-11","2019-12","2020-01","2020-02","2020-03","2020-04","2020-05","2020-06","2020-07","2020-08","2020-09","2020-10","2020-11","2020-12","2021-01","2021-02","2021-03","2021-04","2021-05","2021-06","2021-07","2021-08","2021-09","2021-10","2021-11","2021-12","2022-01","2022-02","2022-03","2022-04","2022-05","2022-06","2022-07","2022-08","2022-09","2022-10","2022-11","2022-12","2023-01","2023-02","2023-03","2023-04","2023-05","2023-06","2023-07","2023-08","2023-09","2023-10","2023-11","2023-12","2024-01","2024-02","2024-03","2024-04","2024-05","2024-06","2024-07","2024-08","2024-09","2024-10","2024-11","2024-12","2025-01","2025-02","2025-03","2025-04","2025-05","2025-06","2025-07","2025-08","2025-09","2025-10","2025-11","2025-12","2026-01","2026-02","2026-03","2026-04","2026-05","2026-06","2026-07","2026-08","2026-09","2026-10"],"s":[2850901,2901934,2837249,3613597,3071460,3571883,2978926,2725298,2577983,2735644,2794137,2871258,2283152,2238500,2570291,2076164,2469348,2568316,2772793,2781163,2732406,2579756,2645509,2850979,2992313,3101781,3195004,3287632,3420819,3542625,3587069,3631205,3605484,3641208,3606287,3699872,3927048,3835921,3695831,3588231,4104293,3767930,3748565,3488740,3576257,3256318,3308147,3391862,3522793,3629742,3776875,3952755,3786732,3828069,3748109,3552822,3753663,4084850,4235303,4187853,4202324,4342992,4156590,4260321,4084157,4136257,4548332,4633253,4456517,4545667,4941692,4621338,4412546,4734918,5001554,4888006,4968927,5024157,4554607,4766630,4923992,4691253,4613146,4754437,4677852,4851196,4890308,4841439,4919079,4951397,4824542,4876378,4849673,4548594,5006503,4737959,4927230,5025167,5337360,5860999,5688376,5795213,6331184,6083449,6352378,6219872,6263724,6053908,6369259,6744689,6617295,6719409,6849861,6663991,6635914,6260056,6361603,7263972,7296955,7496915,7261169,7203012,7442148,7273280,7369406,7559526,8214489,8416000,8589836,9316735,9309335,9464298,9527038,9455759,9239211,9512748,8941417,8253913,9224654,9000661,9087716,9318505],"b2":[2850901,2901934,2837249,3613597,3073683,3588940,2986553,2687739,2549251,2817141,2755909,2840168,2288999,2238957,2575353,2068889,2474915,2582829,2779974,2791253,2744190,2880427,2966604,2841924,2968010,3049161,3111485,3196253,3356006,3456794,3530612,3592259,3530350,3588306,3540457,3616026,3851218,3723930,3595067,3482148,3921355,3610504,3625924,3317288,3382789,3054508,3140645,3161196,3329903,3654743,3765102,3231588,3447403,3492990,3389937,3205376,3365915,3661623,3736479,3720876,3693781,3924087,3761399,3829121,3638519,3785127,4209169,4282115,4090554,4191959,4636090,4277153,3873438,4367555,4573913,4461656,4564978,4539889,4091622,4379043,4521967,4348224,4263870,4466827,4488820,4599267,4677513,4824465,4729249,4761227,4707935,4758518,4761711,4477160,4873867,4730438,4892271,4967454,5210134,5714866,5403003,5243880,5697241,5416992,5672953,5445495,5424281,5240647,5565113,5970277,5975911,6193581,6519811,6438423,6243164,5985554,6923619,6599006,6739134,6866656,6638159,6492370,6708092,6633233,6901801,7005618,7567929,7893393,7992604,8673694,8745012,8977269,9372473,9453677,9235094,9328272,8623773,7587761,8740261,8843298,8540965,9207598],"hs300":[3000000,3120941,3538798,4149109,4228549,3907242,3333954,2940728,2797831,3087080,3115324,3259098,2573461,2513518,2811056,2757472,2768666,2755005,2798689,2906887,2841802,2914297,3090506,2891414,2959443,3016090,3018917,3004685,3051096,3203012,3265098,3338665,3351251,3499939,3499398,3521023,3735073,3514722,3405406,3281698,3321442,3066907,3072735,2912748,3003909,2754920,2771400,2629859,2796683,3205259,3382558,3418259,3170684,3341717,3350253,3319005,3332057,3395146,3344411,3578436,3497478,3441702,3219921,3417705,3377913,3637296,4101205,4207048,4007170,4101457,4332867,4552152,4675035,4661754,4409832,4475458,4657220,4563292,4202642,4197785,4250871,4287897,4220860,4315503,3986535,4002148,3688513,3508257,3574013,3917736,3642657,3562938,3323634,3064914,3365696,3381940,3631088,3554744,3538555,3519477,3318094,3356449,3506850,3289028,3222858,3120647,3053995,2997135,2808666,3071360,3090054,3148501,3127127,3023818,3006721,2901329,3509667,3398892,3421204,3437214,3334286,3398026,3395630,3293660,3354510,3438234,3560100,3927998,4053728,4053705,3954119,4044334,4111071,4114833,3887196,4199267,4273354,4349622,4007871,4040094,3806454,3481405],"yearly":[{"y":"2015","s":0.71,"b2":-0.38},{"y":"2016","s":24.87,"b2":24.16},{"y":"2017","s":23.65,"b2":21.83},{"y":"2018","s":-13.63,"b2":-17.92},{"y":"2019","s":18.88,"b2":11.74},{"y":"2020","s":9.97,"b2":15.79},{"y":"2021","s":7.75,"b2":15.32},{"y":"2022","s":1.28,"b2":5.38},{"y":"2023","s":22.87,"b2":7.12},{"y":"2024","s":17.7,"b2":23.39},{"y":"2025","s":30.34,"b2":35.24},{"y":"2026","s":-2.19,"b2":-1.76}],"kpi":{"nav":9318505,"ann":10.61,"oos":15.61,"sharpe":0.39,"mdd":-42.5,"vol":22.17,"withdrawn":592000,"div_total":2776000},"modules":[{"name":"分红再投 (70%)","v":4.21},{"name":"浮盈>50% 清仓","v":2.5},{"name":"行业约束","v":1.81},{"name":"增强层 (实验性)","v":0.11},{"name":"交易成本","v":-0.43},{"name":"逆回购利息","v":0.09}],"withdraw":[{"y":"2015","div":85551,"want":25665,"got":25665,"rate":100.0},{"y":"2016","div":93682,"want":28105,"got":12113,"rate":43.1},{"y":"2017","div":97018,"want":29105,"got":29105,"rate":100.0},{"y":"2018","div":160688,"want":48206,"got":48206,"rate":100.0},{"y":"2019","div":141181,"want":42354,"got":22706,"rate":53.6},{"y":"2020","div":169254,"want":50776,"got":27171,"rate":53.5},{"y":"2021","div":248138,"want":74442,"got":74442,"rate":100.0},{"y":"2022","div":361705,"want":108511,"got":108511,"rate":100.0},{"y":"2023","div":316280,"want":94884,"got":39429,"rate":41.6},{"y":"2024","div":376375,"want":112912,"got":112912,"rate":100.0},{"y":"2025","div":305454,"want":91636,"got":91636,"rate":100.0}]};
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const fN=n=>n==null?"—":n.toLocaleString('zh-CN');
+const fW=n=>(n/1e4).toFixed(1)+'万';
+const C={acc:'#2DD4A7',blue:'#7C9CC4',amber:'#F5A524',red:'#EF6461',muted:'#8A9AB5',line:'#22304A'};
+
+/* ---------- nav ---------- */
+$$('#nav a').forEach(a=>a.onclick=()=>{
+  $$('#nav a').forEach(x=>x.classList.remove('on')); a.classList.add('on');
+  $$('.page').forEach(p=>p.classList.remove('on'));
+  $('#p-'+a.dataset.page).classList.add('on');
+  if(a.dataset.page==='benchmarks') drawPlacebo();
+  if(a.dataset.page==='archive') renderArchive();
+});
+window.go=function(pg){
+  const a=$$('#nav a').find(x=>x.dataset.page===pg); if(a) a.click();
+};
+
+/* ---------- KPI ---------- */
+const K=D.kpi;
+const spark=(arr,color)=>{
+  const lo=Math.min(...arr),hi=Math.max(...arr),n=arr.length;
+  const pts=arr.map((v,i)=>`${(i/(n-1)*100).toFixed(1)},${(20-(v-lo)/(hi-lo||1)*17).toFixed(1)}`).join(' ');
+  return `<svg class="spark" viewBox="0 0 100 22" preserveAspectRatio="none"><polyline points="${pts}" fill="none" stroke="${color}" stroke-width="1.6"/></svg>`;
+};
+const kpis=[
+  {l:'总资产',v:'¥3,000,000',n:'D+1 · 起点',c:'',s:[1,1,1,1,1,1,1,1]},
+  {l:'可用现金',v:'¥300,000',n:'核心仓 90% 待建',c:'',s:[1,1,1,1,1,1,1,1]},
+  {l:'持仓市值',v:'¥2,700,000',n:'目标 10 只 · 当前 0',c:'',s:[1,1,1,1,1,1,1,1]},
+  {l:'当日盈亏',v:'+0.00%',n:'尚未产生交易',c:'up',s:[1,1,1,1,1,1,1,1]},
+  {l:'今日信号',v:'0',n:'前复权因子待接入',c:'',s:[1,1,1,1,1,1,1,1]},
+  {l:'累计净值差',v:'+0.00%',n:'S* − B2 · 并行第 1 天',c:'am',s:[1,1,1,1,1,1,1,1]},
+];
+$('#kpis').innerHTML=kpis.map(k=>`<div class="kpi"><div class="lab">${k.l}</div>
+  <div class="val ${k.c}">${k.v}</div><div class="note">${k.n}</div>${spark(k.s,k.c==='dn'?C.red:k.c==='am'?C.amber:C.acc)}</div>`).join('');
+
+/* ---------- nav chart ---------- */
+let curRange='all';
+function drawNav(range, el='#navSvg', tipEl='#tip'){
+  curRange=range;
+  let i0=0,i1=D.months.length-1;
+  if(range==='3y') i0=Math.max(0,i1-36);
+  if(range==='oos') i0=Math.max(0,D.months.findIndex(m=>m>='2022-01'));
+  const M=D.months.slice(i0,i1+1),S=D.s.slice(i0,i1+1),B=D.b2.slice(i0,i1+1),H=D.hs300.slice(i0,i1+1);
+  const W=1000,HH=300,pl=64,pr=14,pt=14,pb=30;
+  const all=[...S,...B,...H.filter(x=>x!=null)];
+  const mn=Math.min(...all)*0.94,mx=Math.max(...all)*1.04;
+  const X=i=>pl+i/(M.length-1)*(W-pl-pr), Y=v=>pt+(mx-v)/(mx-mn)*(HH-pt-pb);
+  const path=a=>a.map((v,i)=>v==null?'':`${i===0||a[i-1]==null?'M':'L'}${X(i).toFixed(1)} ${Y(v).toFixed(1)}`).join(' ');
+  let g='';
+  for(let k=0;k<=5;k++){
+    const v=mn+(mx-mn)*k/5,y=Y(v);
+    g+=`<line x1="${pl}" y1="${y}" x2="${W-pr}" y2="${y}" stroke="${C.line}" stroke-dasharray="3 5" opacity=".75"/>`;
+    g+=`<text x="${pl-8}" y="${y+3.5}" text-anchor="end" fill="${C.muted}" font-size="10" font-family="monospace">${fW(v)}</text>`;
+  }
+  M.forEach((m,i)=>{ if(m.endsWith('-01')&&(m.slice(0,4)%2===1||range!=='all')){
+    g+=`<text x="${X(i)}" y="${HH-9}" text-anchor="middle" fill="${C.muted}" font-size="10" font-family="monospace">${m.slice(0,4)}</text>`;
+  }});
+  const area=`M${X(0)} ${HH-pb} `+S.map((v,i)=>`L${X(i).toFixed(1)} ${Y(v).toFixed(1)}`).join(' ')+` L${X(M.length-1)} ${HH-pb} Z`;
+  $(el).innerHTML=`<svg viewBox="0 0 ${W} ${HH}" preserveAspectRatio="none" style="width:100%;height:300px">
+    <defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="${C.acc}" stop-opacity=".18"/><stop offset="100%" stop-color="${C.acc}" stop-opacity="0"/></linearGradient></defs>
+    ${g}<path d="${area}" fill="url(#ga)"/>
+    <path d="${path(H)}" fill="none" stroke="${C.amber}" stroke-width="1.5" opacity=".85"/>
+    <path d="${path(B)}" fill="none" stroke="${C.blue}" stroke-width="1.6" opacity=".9"/>
+    <path d="${path(S)}" fill="none" stroke="${C.acc}" stroke-width="2.3"/>
+    <line id="cross" x1="0" y1="${pt}" x2="0" y2="${HH-pb}" stroke="${C.acc}" stroke-width="1" stroke-dasharray="3 3" opacity="0"/>
+  </svg>`;
+  const svg=$(el+' svg'),tip=$(tipEl);
+  svg.onmousemove=e=>{
+    const r=svg.getBoundingClientRect(),rx=(e.clientX-r.left)/r.width*W;
+    let i=Math.round((rx-pl)/(W-pl-pr)*(M.length-1)); i=Math.max(0,Math.min(M.length-1,i));
+    const cr=svg.querySelector('#cross');
+    cr.setAttribute('x1',X(i)); cr.setAttribute('x2',X(i)); cr.setAttribute('opacity','.6');
+    tip.style.display='block';
+    tip.style.left=Math.min(e.clientX-$(el).getBoundingClientRect().left+14,$(el).clientWidth-175)+'px';
+    tip.style.top='18px';
+    tip.innerHTML=`<b>${M[i]}</b><br>S*　　 ${fW(S[i])}<br>B2　　 ${fW(B[i])}<br>沪深300 ${H[i]==null?'—':fW(H[i])}`;
+  };
+  svg.onmouseleave=()=>{tip.style.display='none';const cr=svg.querySelector('#cross');if(cr)cr.setAttribute('opacity','0');};
+}
+$$('#navSeg button').forEach(b=>b.onclick=()=>{
+  $$('#navSeg button').forEach(x=>x.classList.remove('on'));b.classList.add('on');drawNav(b.dataset.r);
+});
+$$('#arcSeg button').forEach(b=>b.onclick=()=>{
+  $$('#arcSeg button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+  drawNav(b.dataset.r,'#arcSvg','#arcTip');
+});
+drawNav('all');
+
+/* ---------- module bars ---------- */
+function modBars(el){
+  const max=Math.max(...D.modules.map(m=>Math.abs(m.v)));
+  el.innerHTML=D.modules.map(m=>{
+    const w=Math.abs(m.v)/max*100,col=m.v>=0?C.acc:C.red;
+    return `<div class="bar-row"><span class="n">${m.name}</span>
+      <span class="track"><span class="fill" style="width:${w}%;background:${col};opacity:${m.v>=0?.85:.75}"></span></span>
+      <span class="v" style="color:${col}">${m.v>0?'+':''}${m.v.toFixed(2)}</span></div>`;
+  }).join('');
+}
+modBars($('#modBars'));
+$('#modBars2').innerHTML=D.modules.map(m=>`<div class="bar-row"><span class="n">${m.name}</span>
+  <span class="track"><span class="fill zero" style="width:3%;background:var(--dim)"></span></span>
+  <span class="v" style="color:var(--dim)">待积累</span></div>`).join('');
+
+/* ---------- withdraw tables ---------- */
+const wd=D.withdraw;
+$('#wdTable').innerHTML=wd.map(w=>`<tr><td class="num name">${w.y}</td><td class="num">${fN(w.div)}</td>
+  <td class="num">${fN(w.want)}</td><td class="num">${fN(w.got)}</td>
+  <td class="num ${w.rate>=99.9?'pos':'amb'}">${w.rate.toFixed(1)}%</td></tr>`).join('')+
+  `<tr><td class="name">合计</td><td class="num pos">${fN(wd.reduce((a,b)=>a+b.div,0))}</td>
+   <td class="num">${fN(wd.reduce((a,b)=>a+b.want,0))}</td><td class="num pos">${fN(wd.reduce((a,b)=>a+b.got,0))}</td>
+   <td class="num amb">83.8%</td></tr>`;
+$('#wdMini').innerHTML=wd.slice(-5).map(w=>`<tr><td class="name">${w.y}</td><td class="num">${fW(w.div)}</td>
+  <td class="num">${fW(w.want)}</td><td class="num">${fW(w.got)}</td>
+  <td class="num ${w.rate>=99.9?'pos':'amb'}">${w.rate.toFixed(0)}%</td></tr>`).join('');
+
+/* ---------- positions ---------- */
+const HOLD=[
+  ['000858','五粮液','食品饮料',6.90,286400,12.4,8,'持有'],
+  ['600019','宝钢股份','钢铁',6.80,278900,8.1,14,'持有'],
+  ['601088','中国神华','煤炭',5.75,271200,-3.2,6,'持有'],
+  ['600690','海尔智家','家用电器',5.60,265800,5.7,11,'观察'],
+  ['600036','招商银行','股份制银行',4.63,259100,42.1,31,'超涨预警'],
+  ['601398','工商银行','国有大行',4.41,254700,38.6,26,'超涨预警'],
+  ['601857','中国石油','石油石化',3.62,248300,9.4,17,'持有'],
+  ['600900','长江电力','公用事业',3.36,241900,6.8,23,'持有'],
+  ['601688','华泰证券','非银金融',3.10,237500,-2.3,19,'持有'],
+  ['603233','大参林','医药生物',3.05,231800,4.2,9,'持有'],
+];
+$('#posTable').innerHTML=HOLD.map(h=>`<tr><td class="num">${h[0]}</td><td class="name">${h[1]}</td><td>${h[2]}</td>
+  <td class="num">${h[3].toFixed(2)}%</td><td class="num">${fN(h[4])}</td>
+  <td class="num ${h[5]>=0?'pos':'neg'}">${h[5]>=0?'+':''}${h[5].toFixed(1)}%</td>
+  <td class="num">${h[6]}</td><td><span class="badge ${h[7]==='超涨预警'?'a':h[7]==='观察'?'d':'g'}">${h[7]}</span></td></tr>`).join('');
+$('#posStats').innerHTML=[
+  ['10','持仓只数'],['L1 ≤ 1','行业约束'],['90%','核心仓占比'],['等权','单一权重 10%']
+].map(x=>`<div class="card"><div class="lab" style="font-size:11px;color:var(--muted)">${x[1]}</div>
+  <div style="font:600 23px var(--mono);color:var(--acc);margin-top:6px">${x[0]}</div></div>`).join('');
+const cols=[C.acc,'#2A9D8F','#7C9CC4','#F5A524','#B98BE0','#4FB0C6','#8FBF6A','#E08B6A','#6E88B8','#C8A2C8'];
+let off=0,segs='';
+cols.forEach((c,i)=>{const len=2*Math.PI*46*0.10;
+  segs+=`<circle cx="60" cy="60" r="46" fill="none" stroke="${c}" stroke-width="17"
+    stroke-dasharray="${len} ${2*Math.PI*46-len}" stroke-dashoffset="${-off}" transform="rotate(-90 60 60)"/>`;
+  off+=len;});
+$('#donut').innerHTML=`<svg width="130" height="130" viewBox="0 0 120 120">${segs}
+  <text x="60" y="57" text-anchor="middle" fill="#E8EEF7" font-size="17" font-family="monospace">10</text>
+  <text x="60" y="72" text-anchor="middle" fill="#8A9AB5" font-size="9">只 · 等权</text></svg>`;
+$('#donutLegend').innerHTML=['食品饮料','钢铁','煤炭','家用电器','银行(2子类)','石油石化','公用事业','其他']
+  .map((n,i)=>`<div><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:${cols[i]};margin-right:7px"></span>${n}</div>`).join('');
+
+/* ---------- signals ---------- */
+const SIGS=[
+  ['2026-10-28','五粮液','−13.2%','23.1','0.82','+2.41%','通过'],
+  ['2026-10-27','海尔智家','−14.6%','21.4','0.91','+2.83%','通过'],
+  ['2026-10-23','伊利股份','−12.1%','26.8','0.61','+0.71%','拦截'],
+  ['2026-10-21','中国神华','−18.3%','19.2','0.77','+2.10%','冷静期'],
+  ['2026-10-16','美的集团','−15.4%','22.7','0.84','+2.55%','通过'],
+  ['2026-10-14','贵州茅台','−12.8%','24.5','0.70','+1.92%','通过'],
+  ['2026-10-09','长江电力','−12.2%','28.1','0.55','+0.62%','拦截'],
+  ['2026-09-30','工商银行','−13.9%','20.8','0.88','+2.71%','资金不足'],
+];
+$('#sigTable').innerHTML=SIGS.map(s=>`<tr><td class="num">${s[0]}</td><td class="name">${s[1]}</td>
+  <td class="num neg">${s[2]}</td><td class="num">${s[3]}</td><td class="num pos">${s[4]}</td>
+  <td class="num">${s[5]}</td><td><span class="badge ${s[6]==='通过'?'g':s[6]==='拦截'?'d':'a'}">${s[6]}</span></td></tr>`).join('');
+
+/* ---------- yearly bars ---------- */
+let yearDrawn=false;
+function drawYear(){
+  if(!$('#yearChart'))return;
+  if(yearDrawn)return; yearDrawn=true;
+  const Y=D.yearly,W=1000,HH=230,pl=44,pr=14,pt=18,pb=28;
+  const mx=Math.max(...Y.flatMap(y=>[y.s,y.b2]))*1.1, mn=Math.min(...Y.flatMap(y=>[y.s,y.b2]),0)*1.2;
+  const bw=(W-pl-pr)/Y.length, zero=pt+(mx-0)/(mx-mn)*(HH-pt-pb);
+  let g=`<line x1="${pl}" y1="${zero}" x2="${W-pr}" y2="${zero}" stroke="${C.line}"/>`;
+  Y.forEach((y,i)=>{
+    const x=pl+i*bw+bw*0.12,w=bw*0.34;
+    [[y.s,C.acc,0],[y.b2,C.blue,w+3]].forEach(([v,c,dx])=>{
+      const yy=pt+(mx-v)/(mx-mn)*(HH-pt-pb);
+      g+=`<rect x="${x+dx}" y="${Math.min(yy,zero)}" width="${w}" height="${Math.max(1,Math.abs(zero-yy))}" fill="${c}" opacity=".88" rx="2"/>`;
+    });
+    g+=`<text x="${x+w+1}" y="${HH-8}" text-anchor="middle" fill="${C.muted}" font-size="9.5" font-family="monospace">${y.y.slice(2)}</text>`;
+  });
+  g+=`<text x="${pl-8}" y="${zero+3}" text-anchor="end" fill="${C.muted}" font-size="10" font-family="monospace">0%</text>`;
+  $('#yearChart').innerHTML=`<svg viewBox="0 0 ${W} ${HH}" style="width:100%;height:230px">${g}</svg>
+    <div class="legend" style="margin-top:8px"><span><i style="background:${C.acc}"></i>S* 策略</span><span><i style="background:${C.blue}"></i>B2 纯持有</span></div>`;
+}
+
+/* ---------- placebo ---------- */
+let placeboDrawn=false;
+function drawPlacebo(){
+  if(placeboDrawn)return; placeboDrawn=true;
+  const sims=[10.35,9.91,11.17,10.83,10.85,10.59,10.85,11.42,11.40,12.29,11.23,11.06];
+  const bins=[9.5,10,10.5,11,11.5,12,12.5],counts=bins.slice(0,-1).map((a,i)=>sims.filter(v=>v>=a&&v<bins[i+1]).length);
+  const W=440,HH=150,pl=26,pb=26,mx=Math.max(...counts);
+  let g='';
+  counts.forEach((c,i)=>{
+    const x=pl+i*(W-pl-10)/counts.length+3,h=c/mx*(HH-pb-14);
+    g+=`<rect x="${x}" y="${HH-pb-h}" width="${(W-pl-10)/counts.length-7}" height="${h}" fill="${C.blue}" opacity=".75" rx="2"/>`;
+    g+=`<text x="${x+16}" y="${HH-8}" text-anchor="middle" fill="${C.muted}" font-size="9" font-family="monospace">${bins[i]}</text>`;
+  });
+  const rx=pl+(11.15-9.5)/(12.5-9.5)*(W-pl-10);
+  g+=`<line x1="${rx}" y1="8" x2="${rx}" y2="${HH-pb}" stroke="${C.acc}" stroke-width="2" stroke-dasharray="4 3"/>`;
+  g+=`<text x="${W-8}" y="14" text-anchor="end" fill="${C.acc}" font-size="9.5" font-family="monospace">真实 11.15% ↑</text>`;
+  $('#placebo').innerHTML=`<svg viewBox="0 0 ${W} ${HH}" style="width:100%;height:150px">${g}</svg>`;
+}
+
+
+/* ==================== v3.1 · Forward-only ==================== */
+/* UI 演示状态；生产环境由 daily_nav / signal_pair 提供 */
+const F={n:1, m:0, sNav:3000000, b2Nav:3000000, MIN_DAYS:1095, MIN_TRADES:300};
+
+function progRow(lab,val,target,fmt,opts={}){
+  const pct=target?Math.min(100,val/target*100):50;
+  const zero=val===0;
+  const wid=opts.neutral?(zero?0:Math.min(100,Math.abs(val)*10)):pct;
+  return `<div class="prog"><span class="lab">${lab}</span>
+    <span class="track"><span class="fill ${zero?'zero':''}" style="width:${wid}%;
+      ${opts.neg?'background:var(--red);':''}"></span></span>
+    <span class="v">${fmt(val,target)}</span></div>`;
+}
+function renderProgress(el,compact){
+  el.innerHTML=
+    progRow('运行天数',F.n,F.MIN_DAYS,(v,t)=>`${v} / ${t} 天`)+
+    progRow('累计净值差 S*−B2',(F.sNav/F.b2Nav-1)*100,null,(v)=>`${v>=0?'+':''}${v.toFixed(2)}%`,{neutral:true})+
+    progRow('做T配对样本',F.m,F.MIN_TRADES,(v,t)=>`${v} / ${t} 笔`)+
+    (compact?'':`<div class="note">B1–B6 六条基准与信号配对样本自 ${'2026-11-05'} 起并行记录；
+      每笔做T成交同时写「同日随机标的」对照收益。</div>`);
+}
+renderProgress($('#progOverview'),false);
+
+/* ---------- P5 双模式状态机 ---------- */
+let bmMode='progress';
+function renderBM(){
+  const pane=$('#bmPane');
+  if(bmMode==='progress'){
+    pane.innerHTML=`<div id="progBM"></div>`;
+    renderProgress($('#progBM'),true);
+  }else{
+    const needD=Math.max(0,F.MIN_DAYS-F.n), needT=Math.max(0,F.MIN_TRADES-F.m);
+    if(needD>0||needT>0){
+      /* ★ API 层同样守门：样本不足时响应不含 annual_excess_* 字段 */
+      pane.innerHTML=`<div class="locked-card">
+        ⚠️ <b>样本不足，暂不展示年化超额</b><br>
+        还需 <b>${needD}</b> 天 / <b>${needT}</b> 笔做T配对样本<br>
+        年化超额在样本 &lt;3 年时无统计意义，点击
+        <button class="linkbtn" onclick="go('archive')">查看历史基准存档</button><br>
+        <span style="font-size:10.5px;color:var(--dim)">（后端 SampleGuard：mode=annual 且 n&lt;1095 或 m&lt;300 时抛 SampleInsufficient）</span>
+      </div>`;
+    }else{
+      pane.innerHTML=`<div class="callout g">样本已达标（${F.n} 天 / ${F.m} 笔），年化超额视图解锁；
+        此处渲染相对沪深300全收益与红利基准全收益的年化超额 + B6 安慰剂分布。</div>`;
+    }
+  }
+}
+$$('button[data-bm]').forEach(b=>b.onclick=()=>{
+  $$('button[data-bm]').forEach(x=>x.classList.remove('on')); b.classList.add('on');
+  bmMode=b.dataset.bm; renderBM();
+});
+renderBM();
+
+/* ---------- P8 历史归档（只读） ---------- */
+let archDrawn=false;
+function renderArchive(){
+  const K=D.kpi;
+  $('#archKpis').innerHTML=[
+    {l:'年化收益',v:K.ann.toFixed(2)+'%',c:'am'},{l:'样本外 (22-26)',v:K.oos.toFixed(2)+'%',c:'am'},
+    {l:'期末资产',v:fW(K.nav),c:'am'},{l:'夏普',v:K.sharpe.toFixed(2),c:''},
+    {l:'最大回撤',v:K.mdd.toFixed(1)+'%',c:'dn'}
+  ].map(k=>`<div class="kpi"><div class="lab">${k.l}</div><div class="val ${k.c}">${k.v}</div>
+     <div class="note">历史样本 · 只读</div></div>`).join('');
+  if(archDrawn)return; archDrawn=true;
+  drawNav('all','#arcSvg','#arcTip');
+  modBars($('#modBars3'));
+  drawYearInto($('#yearChart2'));
+  $('#wdTable2').innerHTML=D.withdraw.map(w=>`<tr><td class="num name">${w.y}</td>
+    <td class="num">${fN(w.div)}</td><td class="num">${fN(w.want)}</td><td class="num">${fN(w.got)}</td>
+    <td class="num ${w.rate>=99.9?'pos':'amb'}">${w.rate.toFixed(1)}%</td></tr>`).join('');
+}
+/* 分年度图复用：渲染到指定容器 */
+function drawYearInto(el){
+  const Y=D.yearly,W=1000,HH=210,pl=44,pr=14,pt=18,pb=28;
+  const mx=Math.max(...Y.flatMap(y=>[y.s,y.b2]))*1.1, mn=Math.min(...Y.flatMap(y=>[y.s,y.b2]),0)*1.2;
+  const bw=(W-pl-pr)/Y.length, zero=pt+(mx-0)/(mx-mn)*(HH-pt-pb);
+  let g=`<line x1="${pl}" y1="${zero}" x2="${W-pr}" y2="${zero}" stroke="${C.line}"/>`;
+  Y.forEach((y,i)=>{
+    const x=pl+i*bw+bw*0.12,w=bw*0.34;
+    [[y.s,C.acc,0],[y.b2,C.blue,w+3]].forEach(([v,c,dx])=>{
+      const yy=pt+(mx-v)/(mx-mn)*(HH-pt-pb);
+      g+=`<rect x="${x+dx}" y="${Math.min(yy,zero)}" width="${w}" height="${Math.max(1,Math.abs(zero-yy))}" fill="${c}" opacity=".88" rx="2"/>`;
+    });
+    g+=`<text x="${x+w+1}" y="${HH-8}" text-anchor="middle" fill="${C.muted}" font-size="9.5" font-family="monospace">${y.y.slice(2)}</text>`;
+  });
+  el.innerHTML=`<svg viewBox="0 0 ${W} ${HH}" style="width:100%;height:210px">${g}</svg>
+    <div class="legend" style="margin-top:8px"><span><i style="background:${C.acc}"></i>S*</span><span><i style="background:${C.blue}"></i>B2</span></div>`;
+}
+
+
+/* ---------- 初始可见页的图表初始化（刷新 / 深层链接安全） ---------- */
+(function(){
+  const on=$('.page.on'); if(!on) return;
+  const pg=on.id.replace('p-','');
+  if(pg==='benchmarks') drawPlacebo();
+  if(pg==='archive') renderArchive();
+})();
+</script>
+</body>
+</html>

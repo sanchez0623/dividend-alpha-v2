@@ -1,0 +1,92 @@
+# dividend-alpha v3.1 · 唯一参数真值 · Forward-only
+# 修改后必须重跑 make test；代码禁止硬编码本文件任何参数
+meta:
+  version: "3.1"
+  mode: FORWARD_ONLY
+  start_date: "2026-11-05"
+  init_cash: 3000000
+
+universe:
+  min_consecutive_dividend_years: 5
+  min_market_cap: 3.0e10          # 300亿
+  min_div_yield_ttm: 0.025
+  exclude_st: true
+  exclude_delisting: true
+  # 不设流动性门槛；不含未验证的财报字段（min_roe_ttm 等）
+
+portfolio:
+  target_positions: 10
+  weighting: equal
+  core_ratio: 0.90
+  industry_constraint:
+    level: L1
+    max_per_industry: 1
+    bank_subtype: {treat_as_distinct: true, max_per_subtype: 2}
+
+selection:
+  rank_by: div_yield_ttm          # 绝对值降序，禁止按分位排序
+  rebalance: monthly              # 仅补仓到 N，不主动换股
+
+sell_rules:
+  hard:
+    - {cond: "div_yield_ttm < 0.015", action: sell_all}
+    - {cond: "dividend_interrupted", action: sell_all}
+    - {cond: "holding_months >= 60", action: sell_all}
+  overheat: {cond: "unrealized_gain >= 0.50", action: sell_all}
+
+rotation: {enabled: false}        # 已证伪，禁止开启
+
+dividend_reinvest:
+  enabled: true
+  trigger: on_dividend
+  ratio: 1.00                     # 年内 100% 再投
+  weight: current_market_value
+  lot_size: 100
+  min_cash_ratio: 0.02
+
+dividend_withdraw:
+  enabled: true
+  mode: annual
+  timing: last_trading_day_of_December
+  base: ytd_cash_dividend_gross
+  ratio: 0.30
+  shortfall_policy: cash_only     # cash_only | sell_to_cover
+  idempotency_key: "(year, account_id)"
+  skip_incomplete_year: true
+
+overlay:
+  enabled: true
+  experimental: true
+  scope: POOL_WIDE
+  price_basis: ADJ                # 前复权，见 04_DATA_SOURCES.md §4
+  trigger: {kind: combo, lookback_days: 20, drop_threshold: 0.12,
+            rsi_period: 14, rsi_threshold: 25}
+  holding_days: 30
+  rank_by_strength: true
+  max_concurrent: 12
+  position_per_trade: 0.03
+  cooldown_days: 5
+  capital_guard: "amt + cost <= cash * 0.98"
+  min_expected_net: 0.008
+  cost_multiple: 3
+
+cost:
+  commission_rate: 0.00025
+  commission_min: 5
+  stamp_tax_sell: 0.0005
+  transfer_fee: 0.00001
+  slippage_bps: 10
+  cash_interest_annual: 0.02
+
+benchmarks:
+  enabled: [B1, B2, B3, B4, B5, B6]
+  annual_view_guard: {min_days: 1095, min_trades: 300}
+
+data:
+  adj_window_trading_days: 90     # 最低 60，推荐 90
+  # ★ v3.1：tushare 已移除；主 同花顺 → 备 AKShare → 兜底 baostock / 东财（保留）
+  providers: {primary: ths_fuyao, fallback: [akshare, baostock, eastmoney]}
+  akshare_version: "1.20.35"      # 锁定，具体接口名由 T00 用 ak.search() 核实
+  ths: {max_concurrency: 2, min_interval_sec: 0.5,
+        backoff_base_sec: 2, backoff_max_sec: 60,
+        check_envelope_code: true, retry_immediately: false}

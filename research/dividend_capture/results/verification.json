@@ -1,0 +1,329 @@
+{
+  "generated_at": "2026-11-09 14:38:10+0800",
+  "universe_mode": "point_in_time",
+  "checks": [
+    {
+      "section": "A",
+      "name": "日历 2877 行",
+      "ok": true,
+      "detail": "n=2877"
+    },
+    {
+      "section": "A",
+      "name": "全 A 快照 >5000 行",
+      "ok": true,
+      "detail": "n=5557"
+    },
+    {
+      "section": "A",
+      "name": "ST/退剔除后候选 ~5000+",
+      "ok": true,
+      "detail": "n=5091"
+    },
+    {
+      "section": "A",
+      "name": "日线=raw_all 缓存重算",
+      "ok": true,
+      "detail": "cache行=10609769 不一致=0 maxΔ=0.0"
+    },
+    {
+      "section": "A",
+      "name": "退市股日线=缓存",
+      "ok": true,
+      "detail": "退市股数=254 不一致=0"
+    },
+    {
+      "section": "A",
+      "name": "除权事件=缓存重算",
+      "ok": true,
+      "detail": "事件数=20463 不一致=0 缓存缺失=0"
+    },
+    {
+      "section": "A",
+      "name": "历史总股本=缓存重算",
+      "ok": true,
+      "detail": "记录=117590 不一致=0"
+    },
+    {
+      "section": "B",
+      "name": "PIT 候选集 > 500 只",
+      "ok": true,
+      "detail": "n=2395"
+    },
+    {
+      "section": "B",
+      "name": "有历史股本标的 >= 500",
+      "ok": true,
+      "detail": "n=2395"
+    },
+    {
+      "section": "B",
+      "name": "候选数 > 5000",
+      "ok": true,
+      "detail": "n=18397"
+    },
+    {
+      "section": "B",
+      "name": "历史股本口径占比 >95%",
+      "ok": true,
+      "detail": "pit=18388 fallback=0"
+    },
+    {
+      "section": "B",
+      "name": "cap = 当时总股本×当日收盘（逐候选复算）",
+      "ok": true,
+      "detail": "异常=0"
+    },
+    {
+      "section": "B",
+      "name": "合格⇔cap>=500亿（双向）",
+      "ok": true,
+      "detail": "异常=0"
+    },
+    {
+      "section": "B",
+      "name": "entry/exit 日期规则",
+      "ok": true,
+      "detail": "异常=0"
+    },
+    {
+      "section": "B",
+      "name": "趋势只用<=entry数据",
+      "ok": true,
+      "detail": "异常=0"
+    },
+    {
+      "section": "B",
+      "name": "TTM 只用<=ex_date事件",
+      "ok": true,
+      "detail": "异常=0"
+    },
+    {
+      "section": "B",
+      "name": "股息率=TTM/买入价",
+      "ok": true,
+      "detail": "异常=0"
+    },
+    {
+      "section": "C",
+      "name": "捕获次数=交易行数",
+      "ok": true,
+      "detail": "46 vs 46"
+    },
+    {
+      "section": "C",
+      "name": "现金每日 >= 0",
+      "ok": true,
+      "detail": "min=8547.63"
+    },
+    {
+      "section": "C",
+      "name": "逐笔 entry<ex & exit>=ex+30 & 持有天数",
+      "ok": true,
+      "detail": "异常=0"
+    },
+    {
+      "section": "C",
+      "name": "买卖成本逐笔复算",
+      "ok": true,
+      "detail": "异常=0 maxΔ=0.0050"
+    },
+    {
+      "section": "C",
+      "name": "红利税逐笔复算",
+      "ok": true,
+      "detail": "异常=0 maxΔ=0.0050"
+    },
+    {
+      "section": "C",
+      "name": "30% 取现逐笔复算",
+      "ok": true,
+      "detail": "异常=0 maxΔ=0.0053"
+    },
+    {
+      "section": "C",
+      "name": "净盈亏=价格+分红损益",
+      "ok": true,
+      "detail": "异常=0 maxΔ=0.0100"
+    },
+    {
+      "section": "C",
+      "name": "期末权益=期初+Σ净盈亏+未平仓市值",
+      "ok": true,
+      "detail": "复算=1646879.09 报告=1646879.08"
+    },
+    {
+      "section": "C",
+      "name": "nav 末日 wealth=报告期末总财富",
+      "ok": true,
+      "detail": "3119095.99 vs 3119095.99"
+    },
+    {
+      "section": "C",
+      "name": "nav 末日 equity=报告期末权益",
+      "ok": true,
+      "detail": "1646879.08 vs 1646879.08"
+    },
+    {
+      "section": "C",
+      "name": "CAGR 与期末总财富一致",
+      "ok": true,
+      "detail": "cagr=0.003598"
+    },
+    {
+      "section": "D",
+      "name": "重跑 trades 哈希=summary",
+      "ok": true,
+      "detail": "0625de6134504769"
+    },
+    {
+      "section": "D",
+      "name": "重跑 nav 哈希=summary",
+      "ok": true,
+      "detail": "3a44ec4e753569d6"
+    },
+    {
+      "section": "D",
+      "name": "连续两次重跑哈希一致",
+      "ok": true,
+      "detail": "0625de613450 / 0625de613450"
+    },
+    {
+      "section": "E",
+      "name": "旧口径 CAGR 复算一致",
+      "ok": true,
+      "detail": "0.017203 vs 0.017203"
+    },
+    {
+      "section": "E",
+      "name": "旧口径期末总财富复算一致",
+      "ok": true,
+      "detail": "3609229.63 vs 3609229.63"
+    },
+    {
+      "section": "E",
+      "name": "旧口径哈希=summary",
+      "ok": true,
+      "detail": "hash match"
+    },
+    {
+      "section": "F",
+      "name": "pool62 PIT 覆盖 >= 55",
+      "ok": true,
+      "detail": "n=62"
+    },
+    {
+      "section": "F",
+      "name": "pool62 捕获次数>0",
+      "ok": true,
+      "detail": "n=33"
+    },
+    {
+      "section": "F",
+      "name": "pool62 日期规则",
+      "ok": true,
+      "detail": "异常=0"
+    },
+    {
+      "section": "F",
+      "name": "pool62 现金>=0",
+      "ok": true,
+      "detail": "min=13009.02"
+    },
+    {
+      "section": "F",
+      "name": "pool62 可复现",
+      "ok": true,
+      "detail": "hash match"
+    },
+    {
+      "section": "G",
+      "name": "optimizations 结果存在",
+      "ok": true,
+      "detail": "rows=18"
+    },
+    {
+      "section": "G",
+      "name": "推荐组合 CAGR 复算一致",
+      "ok": true,
+      "detail": "0.102305 vs 0.102305"
+    },
+    {
+      "section": "G",
+      "name": "推荐组合期末总财富复算一致",
+      "ok": true,
+      "detail": "8622609.00 vs 8622609.00"
+    },
+    {
+      "section": "G",
+      "name": "推荐组合现金>=0",
+      "ok": true,
+      "detail": "min=11957.72"
+    },
+    {
+      "section": "G",
+      "name": "推荐组合逐笔日期/持有天数",
+      "ok": true,
+      "detail": "异常=0"
+    },
+    {
+      "section": "G",
+      "name": "推荐组合成本复算",
+      "ok": true,
+      "detail": "异常=0"
+    },
+    {
+      "section": "G",
+      "name": "推荐组合红利税按实际持有天数复算（早卖=20%档）",
+      "ok": true,
+      "detail": "异常=0"
+    },
+    {
+      "section": "G",
+      "name": "推荐组合取现复算",
+      "ok": true,
+      "detail": "异常=0"
+    },
+    {
+      "section": "G",
+      "name": "早卖(<=30天)税档=20%",
+      "ok": true,
+      "detail": "早卖笔数=0"
+    }
+  ],
+  "n_checks": 48,
+  "n_pass": 48,
+  "n_fail": 0,
+  "all_ok": true,
+  "pit_cap_sources": {
+    "pit_shares": 18388,
+    "fallback_estimated": 0
+  },
+  "data_counts": {
+    "spot_rows": 5557,
+    "pit_symbols": 2395,
+    "shares_history_records": 117590,
+    "events": 20463,
+    "delisted_included": 254
+  },
+  "reproducibility": {
+    "pit_full": {
+      "trades_sha256": "0625de6134504769dccc54139f0e14bc29b3ba50070a070c18b1c534a2cfaf18",
+      "nav_sha256": "3a44ec4e753569d6d9a46750a150293d1c4018281d2438e92f40b46e4153a76e",
+      "captures": 46,
+      "final_wealth": 3119095.99
+    },
+    "legacy_full": {
+      "trades_sha256": "55b9422a74f39843430e78f968e73e603e211d1bd416b95d4f0abdfb38b8cdad",
+      "nav_sha256": "727a18cbf5709d257727086abfc409ab1de7b7db884909a74ea396f46d3b14bb",
+      "captures": 46,
+      "final_wealth": 3609229.63
+    },
+    "pit_pool62": {
+      "trades_sha256": "fa785329463c6bd052307c851604e58ba9e1701f69d43a8a5a3bc45c02996c35",
+      "nav_sha256": "47f1b12296e100834da037484c86352e1997c7255111e6636475163a1e1e44c7",
+      "captures": 33,
+      "final_wealth": 3739972.4
+    }
+  }
+}

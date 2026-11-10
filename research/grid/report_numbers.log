@@ -1,0 +1,63 @@
+=== FULL metrics ===
+hold100                          CAGR   0.1002 total    1.8150 vol 0.1796 sharpe  0.641 mdd  -0.2819 calmar 0.3554 wealth     8444986 eq     8444986 def       0 trades    0 tr/yr   0.00 buys    0 sells    0 costs        0 tax       0 divg        0 realpnl         0 win 0.000 maxunit  0 expo 0.863 turn  0.000 avgtr       0
+core70_cash30                    CAGR   0.0785 total    1.2695 vol 0.1459 sharpe  0.611 mdd  -0.2294 calmar 0.3424 wealth     6808409 eq     6808409 def       0 trades    0 tr/yr   0.00 buys    0 sells    0 costs        0 tax       0 divg        0 realpnl         0 win 0.000 maxunit  0 expo 0.703 turn  0.000 avgtr       0
+core70_grid30_sym_trailing       CAGR   0.0802 total    1.3080 vol 0.1486 sharpe  0.613 mdd  -0.2313 calmar 0.3469 wealth     6923260 eq     6923868 def     608 trades  794 tr/yr  73.25 buys  377 sells  417 costs     9474 tax    1401 divg    44594 realpnl     97308 win 0.616 maxunit 10 expo 0.716 turn  0.108 avgtr    7912
+core70_grid30_sym_fixed          CAGR   0.0828 total    1.3695 vol 0.1518 sharpe  0.620 mdd  -0.2369 calmar 0.3497 wealth     7108635 eq     7108635 def       0 trades  631 tr/yr  58.22 buys  297 sells  334 costs     7372 tax     851 divg   108491 realpnl    119656 win 0.961 maxunit 10 expo 0.726 turn  0.079 avgtr    7443
+core70_grid30_sym_recenter       CAGR   0.0840 total    1.3980 vol 0.1554 sharpe  0.617 mdd  -0.2397 calmar 0.3506 wealth     7193299 eq     7193956 def     657 trades 4420 tr/yr 407.78 buys 2204 sells 2216 costs    72754 tax   20131 divg   204479 realpnl    257268 win 0.602 maxunit 10 expo 0.759 turn  1.035 avgtr   13984
+core70_grid30_dip                CAGR   0.0789 total    1.2782 vol 0.1460 sharpe  0.613 mdd  -0.2285 calmar 0.3454 wealth     6834682 eq     6834682 def       0 trades  420 tr/yr  38.75 buys  210 sells  210 costs     4226 tax     413 divg     3872 realpnl     27041 win 0.690 maxunit  7 expo 0.702 turn  0.045 avgtr    6199
+core70_grid30_step1.5            CAGR   0.0807 total    1.3182 vol 0.1484 sharpe  0.617 mdd  -0.2314 calmar 0.3485 wealth     6954108 eq     6954472 def     365 trades 1140 tr/yr 105.17 buys  550 sells  590 costs    13332 tax    2100 divg    48179 realpnl    135797 win 0.631 maxunit 10 expo 0.716 turn  0.152 avgtr    7795
+core70_grid30_step2.5            CAGR   0.0806 total    1.3173 vol 0.1489 sharpe  0.615 mdd  -0.2323 calmar 0.3471 wealth     6951203 eq     6951750 def     547 trades  772 tr/yr  71.22 buys  366 sells  406 costs     9347 tax    1753 divg    44001 realpnl    128889 win 0.650 maxunit 10 expo 0.716 turn  0.107 avgtr    8099
+core80_grid20_sym                CAGR   0.0872 total    1.4742 vol 0.1598 sharpe  0.623 mdd  -0.2496 calmar 0.3493 wealth     7422224 eq     7422604 def     380 trades  794 tr/yr  73.25 buys  377 sells  417 costs     7537 tax     861 divg    27713 realpnl     61398 win 0.616 maxunit 10 expo 0.769 turn  0.066 avgtr    5103
+core50_grid50_sym                CAGR   0.0648 total    0.9747 vol 0.1231 sharpe  0.591 mdd  -0.1977 calmar 0.3277 wealth     5923069 eq     5924133 def    1064 trades  794 tr/yr  73.25 buys  377 sells  417 costs    13526 tax    2396 divg    77528 realpnl    170138 win 0.616 maxunit 10 expo 0.592 turn  0.212 avgtr   13789
+
+=== 2021 subsample ===
+hold100                          CAGR   0.1106 total    0.8449 mdd  -0.1663 wealth     5534644 trades    0 tr/yr   0.00 costs        0 tax       0 win 0.000
+core70_cash30                    CAGR   0.0829 total    0.5922 mdd  -0.1325 wealth     4776469 trades    0 tr/yr   0.00 costs        0 tax       0 win 0.000
+core70_grid30_sym_trailing       CAGR   0.0882 total    0.6376 mdd  -0.1369 wealth     4912073 trades  739 tr/yr 126.60 costs     9692 tax    2158 win 0.666
+core70_grid30_sym_fixed          CAGR   0.0858 total    0.6167 mdd  -0.1348 wealth     4850089 trades  346 tr/yr  59.28 costs     4123 tax     222 win 0.951
+core70_grid30_sym_recenter       CAGR   0.0915 total    0.6674 mdd  -0.1492 wealth     5002008 trades 2071 tr/yr 354.80 costs    28568 tax    9200 win 0.597
+core70_grid30_dip                CAGR   0.0854 total    0.6132 mdd  -0.1370 wealth     4838951 trades  754 tr/yr 129.17 costs     8414 tax    1474 win 0.567
+core70_grid30_step1.5            CAGR   0.0894 total    0.6482 mdd  -0.1378 wealth     4944168 trades  954 tr/yr 163.44 costs    12743 tax    2733 win 0.694
+core70_grid30_step2.5            CAGR   0.0886 total    0.6410 mdd  -0.1359 wealth     4922196 trades  720 tr/yr 123.35 costs     9349 tax    2168 win 0.647
+core80_grid20_sym                CAGR   0.0958 total    0.7053 mdd  -0.1460 wealth     5115589 trades  692 tr/yr 118.55 costs     7292 tax    1417 win 0.685
+core50_grid50_sym                CAGR   0.0716 total    0.4970 mdd  -0.1186 wealth     4489775 trades  739 tr/yr 126.60 costs    13811 tax    3596 win 0.666
+
+=== yearly main/cash30/hold100 ===
+ year      main  equity_end  grid_trades    cash30   hold100  trades
+ 2016  0.082490  3247469.10          392  0.070668  0.101178     392
+ 2017  0.306086  4241474.49           62  0.306257  0.426230      62
+ 2018 -0.145899  3622649.67           78 -0.140395 -0.178704      78
+ 2019  0.338387  4848507.43           84  0.333866  0.445428      84
+ 2020  0.276871  6190919.89           98  0.269972  0.331622      98
+ 2021  0.054683  6529460.06           23  0.053327  0.062077      23
+ 2022 -0.060419  6134955.49            3 -0.058674 -0.068143       3
+ 2023 -0.007727  6087548.95            0 -0.007641 -0.008959       0
+ 2024  0.076349  6552328.12           14  0.071530  0.084381      14
+ 2025  0.068291  6999790.39           12  0.070223  0.081351      12
+ 2026 -0.010846  6923868.21           28 -0.012391 -0.014156      28
+
+=== grid by stock (main) ===
+  symbol name  core_shares  grid_shares  grid_units  init_grid_units  core_cash  grid_cash  last_close  grid_div_gross  grid_div_tax  n_buys  n_sells  buy_amount  sell_amount  buy_fees  sell_fees  realized_price_pnl  max_grid_units  round_trips  win_round_trips  initial_grid_stock_cost  grid_final_value  grid_sleeve  grid_excess_gross
+sh600028 中国石化      43900.0          0.0           0                5  153679.14   94200.75        5.80          608.40         60.84      14       19    158742.0     162828.0    164.55     268.27              4086.0               7           19               12                  43020.0          94200.75      90000.0            4200.75
+sh600219 南山铝业      78000.0          0.0           0                5  108892.25  100171.11        4.37          640.00         64.00      48       53    403775.0     414549.0    472.77     706.12             10774.0               8           53               30                  43745.0         100171.11      90000.0           10171.11
+sh601288 农业银行      67300.0          0.0           0                5  157175.15   94399.94        7.28         1401.12        140.11       6       11     95480.0      98868.0     88.86     160.21              3388.0               7           11                9                  43680.0          94399.94      90000.0            4399.94
+sh601988 中国银行      54200.0          0.0           0                5  122018.41   95041.11        6.85         4397.60        480.24      33       38    302266.0     304244.0    340.51     513.75              1978.0              10           38               27                  44505.0          95041.11      90000.0            5041.11
+sh600329  达仁堂      10900.0          0.0           0                5  113406.21   98009.81       42.12            0.00          0.00      77       82    481496.0     491100.0    661.61     932.58              9604.0               8           82               54                  38480.0          98009.81      90000.0            8009.81
+sz000651 格力电器      10300.0          0.0           0                5  248187.85  103023.74       39.02         3000.00        300.00      16       21    181028.0     191848.0    187.12     309.15             10820.0               6           21               14                  40520.0         103023.74      90000.0           13023.74
+sh600585 海螺水泥      13000.0          0.0           0                5  188811.71   93946.98       18.54         1075.00        107.50      22       27    206805.0     210375.0    231.66     358.86              3570.0               9           27               17                  40175.0          93946.98      90000.0            3946.98
+sh601216 君正集团      40600.0      16000.0          10                5   84295.67   71120.21        4.68        32896.00        190.40     124      119   1150376.0    1101832.0   1273.93    1767.46             41904.0              10          119               64                  41240.0         146000.21      90000.0           56000.21
+sh601088 中国神华      14800.0          0.0           0                5  307551.40   96609.55       48.54          576.00         57.60      20       25    211122.0     217794.0    224.09     356.75              6672.0               8           25               16                  42450.0          96609.55      90000.0            6609.55
+sz000568 泸州老窖       8400.0          0.0           0                5  275434.77   94056.45       81.17            0.00          0.00      17       22    154002.0     158514.0    176.87     278.67              4512.0              10           22               14                  37485.0          94056.45      90000.0            4056.45
+
+=== decomposition main/fixed/recenter/dip/steps ===
+core70_grid30_sym_trailing {"excess_vs_core70_cash30": 114851.65, "excess_vs_hold100": -1521725.3, "grid_price_pnl_total": 81740.0, "grid_div_gross": 44594.12, "grid_costs": 9473.78, "grid_tax_realized": 1400.69, "grid_tax_deferred": 608.0, "cash_drag_30pct_vs_hold100": -1636576.95}
+core70_grid30_sym_fixed {"excess_vs_core70_cash30": 300226.07, "excess_vs_hold100": -1336350.88, "grid_price_pnl_total": 199959.0, "grid_div_gross": 108490.84, "grid_costs": 7372.32, "grid_tax_realized": 851.45, "grid_tax_deferred": 0.0, "cash_drag_30pct_vs_hold100": -1636576.95}
+core70_grid30_sym_recenter {"excess_vs_core70_cash30": 384890.02, "excess_vs_hold100": -1251686.93, "grid_price_pnl_total": 273953.0, "grid_div_gross": 204478.78, "grid_costs": 72753.97, "grid_tax_realized": 20130.76, "grid_tax_deferred": 657.03, "cash_drag_30pct_vs_hold100": -1636576.95}
+core70_grid30_dip {"excess_vs_core70_cash30": 26273.32, "excess_vs_hold100": -1610303.63, "grid_price_pnl_total": 27041.01, "grid_div_gross": 3871.5, "grid_costs": 4226.43, "grid_tax_realized": 412.75, "grid_tax_deferred": 0.0, "cash_drag_30pct_vs_hold100": -1636576.95}
+core70_grid30_step1.5 {"excess_vs_core70_cash30": 145699.0, "excess_vs_hold100": -1490877.95, "grid_price_pnl_total": 113317.0, "grid_div_gross": 48178.72, "grid_costs": 13332.15, "grid_tax_realized": 2099.77, "grid_tax_deferred": 364.8, "cash_drag_30pct_vs_hold100": -1636576.95}
+core70_grid30_step2.5 {"excess_vs_core70_cash30": 142794.06, "excess_vs_hold100": -1493782.89, "grid_price_pnl_total": 110441.01, "grid_div_gross": 44000.72, "grid_costs": 9347.19, "grid_tax_realized": 1753.27, "grid_tax_deferred": 547.2, "cash_drag_30pct_vs_hold100": -1636576.95}
+
+=== decomposition 2021 ===
+core70_grid30_sym_trailing {"excess_vs_core70_cash30": 135603.29, "excess_vs_hold100": -622571.17, "grid_price_pnl_total": 81665.0, "grid_div_gross": 66493.14, "grid_costs": 9692.35, "grid_tax_realized": 2158.49, "cash_drag_30pct_vs_hold100": -758174.46}
+core70_grid30_sym_fixed {"excess_vs_core70_cash30": 73619.98, "excess_vs_hold100": -684554.48, "grid_price_pnl_total": 37491.01, "grid_div_gross": 40473.92, "grid_costs": 4122.66, "grid_tax_realized": 222.28, "cash_drag_30pct_vs_hold100": -758174.46}
+core70_grid30_dip {"excess_vs_core70_cash30": 62481.68, "excess_vs_hold100": -695692.79, "grid_price_pnl_total": 38313.0, "grid_div_gross": 34761.1, "grid_costs": 8414.15, "grid_tax_realized": 1474.27, "cash_drag_30pct_vs_hold100": -758174.46}
