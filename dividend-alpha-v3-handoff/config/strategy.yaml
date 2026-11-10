@@ -1,7 +1,7 @@
-# dividend-alpha v3.1 · 唯一参数真值 · Forward-only
+# dividend-alpha v3.0 · 唯一参数真值 · Forward-only
 # 修改后必须重跑 make test；代码禁止硬编码本文件任何参数
 meta:
-  version: "3.1"
+  version: "3.0"
   mode: FORWARD_ONLY
   start_date: "2026-11-05"
   init_cash: 3000000
@@ -21,6 +21,7 @@ portfolio:
   industry_constraint:
     level: L1
     max_per_industry: 1
+    max_bank_total: 4               # ★ 2026-11-08 收紧：银行全组合 ≤4 家（原规格仅子类≤2，理论上限 6）
     bank_subtype: {treat_as_distinct: true, max_per_subtype: 2}
 
 selection:
@@ -71,11 +72,13 @@ overlay:
   cost_multiple: 3
 
 cost:
-  commission_rate: 0.00025
+  commission_rate: 0.00005      # 佣金 万0.5（双边，min 5 元）
   commission_min: 5
-  stamp_tax_sell: 0.0005
-  transfer_fee: 0.00001
-  slippage_bps: 10
+  stamp_tax_sell: 0.0005        # 印花税 万5（仅卖出）
+  handling_fee: 0.0000341       # 经手费 万0.341（双边）
+  reg_fee: 0.00002              # 证管费 万0.2（双边）
+  transfer_fee: 0.00001         # 过户费 万0.1（双边）
+  slippage_bps: 5               # 滑点（模拟执行冲击；2026-11-07 10→5：持仓均为一线蓝筹、单笔~33万，真实滑点 1-3bp）
   cash_interest_annual: 0.02
 
 benchmarks:
@@ -84,9 +87,10 @@ benchmarks:
 
 data:
   adj_window_trading_days: 90     # 最低 60，推荐 90
-  # ★ v3.1：tushare 已移除；主 同花顺 → 备 AKShare → 兜底 baostock / 东财（保留）
-  providers: {primary: ths_fuyao, fallback: [akshare, baostock, eastmoney]}
-  akshare_version: "1.20.35"      # 锁定，具体接口名由 T00 用 ak.search() 核实
+  providers: {primary: tushare, fallback: [ths_fuyao, akshare, baostock]}
   ths: {max_concurrency: 2, min_interval_sec: 0.5,
-        backoff_base_sec: 2, backoff_max_sec: 60,
-        check_envelope_code: true, retry_immediately: false}
+        backoff_base_sec: 2, backoff_max_sec: 60}
+  funnel:                         # ★ 2026-11-08 可复现性加固：漏斗失败重试 + 熔断
+    retry_attempts: 3             # 单只/单批失败重试次数（限流用 retry_after，其余指数退避）
+    retry_backoff_sec: 2          # 重试退避基数（2/4/8s）
+    max_fail_ratio: 0.05          # S2/S3 失败率超 5% → 判定数据源异常，熔断本次漏斗（不落缓存）

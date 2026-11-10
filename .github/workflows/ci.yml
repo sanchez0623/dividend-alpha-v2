@@ -28,7 +28,11 @@ jobs:
       - name: 冻结参数真值与归档就位
         run: |
           mkdir -p config
+          # S* 参数真值来自 handoff 归档；DC 策略参数在 config/（handoff 不发布该文件）
           cp dividend-alpha-v3-handoff/config/*.yaml config/
+          test -f config/strategy_dividend_capture.yaml
+          test -f config/strategy.yaml
+          grep -q 'max_bank_total' config/strategy.yaml
 
       - name: "禁用逻辑检查（rotation.enabled: true）"
         run: "! grep -rn 'rotation.enabled: true' src config || true"
