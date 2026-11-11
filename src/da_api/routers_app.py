@@ -110,11 +110,15 @@ def positions(session: Session = Depends(get_session), cfg=Depends(get_cfg)):
         mv = float(p.shares_total) * price
         gain = (price / float(p.cost_price) - 1.0) * 100 if p.cost_price else 0.0
         # ★ 因子取"≤今天的最新一日"（周末/盘前当日因子尚不存在，不能按日期等值查）
-        f = (session.query(FactorDaily).filter(
+        facs = (session.query(FactorDaily).filter(
                 FactorDaily.symbol == p.symbol,
                 FactorDaily.trade_date <= today)
-             .order_by(FactorDaily.trade_date.desc()).first())
+             .order_by(FactorDaily.trade_date.desc()).limit(2).all())
+        f = facs[0] if facs else None
         yld = float(f.div_yield_ttm) if f and f.div_yield_ttm else None
+        # ★ 上一交易日股息率（环比箭头用）：取倒数第二条因子
+        prev = facs[1] if len(facs) > 1 else None
+        yld_prev = float(prev.div_yield_ttm) if prev and prev.div_yield_ttm else None
         # ★ 持有天数（展示口径；卖出规则内部仍按配置 holding_months>=60 判定）
         days = (today - p.buy_date).days if p.buy_date else 0
         months = days / 30.44
@@ -132,7 +136,8 @@ def positions(session: Session = Depends(get_session), cfg=Depends(get_cfg)):
             status = "超涨预警"
         out.append(PositionRow(
             symbol=p.symbol, name=name, industry_l1=industry, bank_subtype=bank_sub,
-            div_yield_ttm=_live(yld, "%"), market_value=_live(mv), cost_price=_live(float(p.cost_price)),
+            div_yield_ttm=_live(yld, "%"), div_yield_prev=_live(yld_prev, "%"),
+            market_value=_live(mv), cost_price=_live(float(p.cost_price)),
             unrealized_gain=_live(gain, "%"),
             unrealized_pnl=_live(mv - float(p.shares_total) * float(p.cost_price)),
             holding_days=_live(float(days)),

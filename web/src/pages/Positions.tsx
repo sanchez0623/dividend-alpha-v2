@@ -1,5 +1,5 @@
 import React from "react";
-import { api } from "../api";
+import { api, type NumberWithClass } from "../api";
 import { Card, Num, fmtMoney, fmtPct, useFetch } from "../components/ui";
 
 const COLS = ["代码", "名称", "行业L1", "银行子类", "股息率TTM", "持仓市值", "成本价",
@@ -24,7 +24,7 @@ export default function Positions() {
                 <tr key={r.symbol}>
                   <td>{r.symbol}</td><td>{r.name ?? "—"}</td><td>{r.industry_l1 ?? "—"}</td>
                   <td>{r.bank_subtype ?? "—"}</td>
-                  <td className="num"><Num n={r.div_yield_ttm} fmt={(v) => fmtPct(v * 100)} /></td>
+                  <td className="num"><YieldCell cur={r.div_yield_ttm} prev={r.div_yield_prev} /></td>
                   <td className="num"><Num n={r.market_value} fmt={fmtMoney} /></td>
                   <td className="num"><Num n={r.cost_price} /></td>
                   <td className="num" style={{ color: (r.unrealized_pnl.value ?? 0) >= 0 ? "var(--acc)" : "var(--red)" }}>
@@ -62,4 +62,27 @@ function StatusBadge({ s }: { s: string }) {
     "持有": "g", "观察": "d", "超涨预警": "a", "待卖出": "r", "停牌": "d",
   };
   return <span className={"badge " + (map[s] ?? "d")}>{s}</span>;
+}
+
+/** 股息率单元格：当前值 + 相对上一交易日的环比箭头（↑升 ↓降 →平）。 */
+function YieldCell({ cur, prev }: { cur: NumberWithClass; prev: NumberWithClass }) {
+  const c = cur?.value;
+  const p = prev?.value;
+  let arrow = "→";
+  let color = "var(--muted)";
+  if (c != null && p != null) {
+    const eps = 1e-6; // 三位小数量级下的容差，避免浮点噪声误判
+    if (c - p > eps) { arrow = "↑"; color = "var(--red)"; }   // 股息率升（多因股价跌）→ 红
+    else if (p - c > eps) { arrow = "↓"; color = "var(--acc)"; } // 股息率降（多因股价涨）→ 绿
+  }
+  const delta = c != null && p != null ? c - p : null;
+  const title = delta != null
+    ? `上一交易日 ${fmtPct(p! * 100)} · 环比 ${(delta >= 0 ? "+" : "")}${(delta * 100).toFixed(3)}pp`
+    : "无上一交易日数据";
+  return (
+    <span title={title}>
+      <Num n={cur} fmt={(v) => fmtPct(v * 100)} />{" "}
+      <span style={{ color, fontSize: 11 }}>{arrow}</span>
+    </span>
+  );
 }

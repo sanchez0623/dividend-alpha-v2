@@ -31,7 +31,7 @@ export interface Overview {
 
 export interface PositionRow {
   symbol: string; name: string | null; industry_l1: string | null; bank_subtype: string | null;
-  div_yield_ttm: NumberWithClass; market_value: NumberWithClass; cost_price: NumberWithClass;
+  div_yield_ttm: NumberWithClass; div_yield_prev: NumberWithClass; market_value: NumberWithClass; cost_price: NumberWithClass;
   unrealized_gain: NumberWithClass; unrealized_pnl: NumberWithClass; holding_days: NumberWithClass; shares_available: NumberWithClass;
   status: string;
 }

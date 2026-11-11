@@ -42,6 +42,7 @@ class PositionRow(BaseModel):
     industry_l1: str | None
     bank_subtype: str | None
     div_yield_ttm: NumberWithClass
+    div_yield_prev: NumberWithClass = NumberWithClass(value=None, data_class="实时", unit="%")  # 上一交易日股息率（环比箭头用）
     market_value: NumberWithClass
     cost_price: NumberWithClass
     unrealized_gain: NumberWithClass
