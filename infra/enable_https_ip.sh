@@ -25,11 +25,16 @@ INFRA="$PROJ_DIR/infra"
 HTTPS_CONF="$INFRA/https.conf"
 CERTS_DIR="$INFRA/certs"
 LE_DIR="$INFRA/letsencrypt"
+# HTTPS 开关标记：证书就绪后创建（nginx 据此决定 HTTP 是否跳 https）。位于 conf.d，worker 必可读。
+MARKER_CONF="$INFRA/https.enabled"
+CONTAINER_MARKER="/etc/nginx/conf.d/https.enabled"
 
 # 1) 准备目录（与 compose 挂载一致）；https.conf 为空 => nginx HTTP-only 启动
 mkdir -p "$CERTS_DIR" "$LE_DIR" "$PROJ_DIR/logs"
 chmod 755 "$CERTS_DIR" "$LE_DIR"
 [ -f "$HTTPS_CONF" ] || : > "$HTTPS_CONF"
+# 安全兜底：本轮签发成功前先清掉旧标记，避免 certbot 失败时 HTTP 仍跳到起不来的 443
+rm -f "$MARKER_CONF"
 docker compose -f "$COMPOSE" up -d --build web
 sleep 2
 
@@ -51,11 +56,14 @@ sed -e "s|__CERT__|${LE_LIVE}/fullchain.pem|g" \
     infra/nginx.https.conf.template > "$HTTPS_CONF"
 docker compose -f "$COMPOSE" exec -T web nginx -t
 docker compose -f "$COMPOSE" exec -T web nginx -s reload
-echo "==> HTTPS 已启用"
+# 证书就绪 → 创建开关标记，nginx 的 HTTP server 据此启用 跳转
+touch "$MARKER_CONF"
+chmod 644 "$MARKER_CONF"
+echo "==> HTTPS 已启用（标记 $CONTAINER_MARKER 已创建）"
 
 # 4) 安装续期 cron（每 12 小时；certbot 自判临期才续，幂等不堆叠）
 CRON_MARK="dividend-alpha-certbot-renew"
-CRON_JOB="17 */12 * * * cd ${PROJ_DIR} && docker run --rm -v ${INFRA}/letsencrypt:/etc/letsencrypt -v ${INFRA}/certs:/var/www/certbot certbot/certbot:latest renew --webroot -w /var/www/certbot --preferred-profile shortlived >> logs/certbot_renew.log 2>&1 && sed -e \"s|__CERT__|${LE_LIVE}/fullchain.pem|g\" -e \"s|__KEY__|${LE_LIVE}/privkey.pem|g\" infra/nginx.https.conf.template > infra/https.conf && docker compose -f ${COMPOSE} exec -T web nginx -s reload # ${CRON_MARK}"
+CRON_JOB="17 */12 * * * cd ${PROJ_DIR} && docker run --rm -v ${INFRA}/letsencrypt:/etc/letsencrypt -v ${INFRA}/certs:/var/www/certbot certbot/certbot:latest renew --webroot -w /var/www/certbot --preferred-profile shortlived >> logs/certbot_renew.log 2>&1 && sed -e \"s|__CERT__|${LE_LIVE}/fullchain.pem|g\" -e \"s|__KEY__|${LE_LIVE}/privkey.pem|g\" infra/nginx.https.conf.template > infra/https.conf && touch infra/https.enabled && docker compose -f ${COMPOSE} exec -T web nginx -s reload # ${CRON_MARK}"
 ( crontab -l 2>/dev/null | grep -v "# ${CRON_MARK}" || true
   echo "${CRON_JOB}"
 ) | crontab -
